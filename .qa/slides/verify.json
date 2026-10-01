@@ -1,0 +1,150 @@
+{
+  "summary": {
+    "total": 12,
+    "overflow": [],
+    "emoji": [],
+    "ghosts": [],
+    "logos": [
+      83,
+      53
+    ],
+    "colors": {
+      "bg": "rgb(255, 255, 255)",
+      "eyebrow": "rgb(174, 22, 21)"
+    }
+  },
+  "results": [
+    {
+      "i": 0,
+      "title": "speech-to-text-lab",
+      "overflowY": false,
+      "childOverflow": false,
+      "logoH": 83,
+      "hasEmoji": false,
+      "ghosts": [],
+      "eyebrow": "rgb(174, 22, 21)",
+      "bg": "rgb(255, 255, 255)"
+    },
+    {
+      "i": 1,
+      "title": "Bu oturumda neler var?",
+      "overflowY": false,
+      "childOverflow": false,
+      "logoH": null,
+      "hasEmoji": false,
+      "ghosts": [],
+      "eyebrow": "rgb(174, 22, 21)",
+      "bg": "rgb(255, 255, 255)"
+    },
+    {
+      "i": 2,
+      "title": "ALO 124 nedir?",
+      "overflowY": false,
+      "childOverflow": false,
+      "logoH": null,
+      "hasEmoji": false,
+      "ghosts": [],
+      "eyebrow": "rgb(174, 22, 21)",
+      "bg": "rgb(255, 255, 255)"
+    },
+    {
+      "i": 3,
+      "title": "Ses dosyaları ne işe yarar?",
+      "overflowY": false,
+      "childOverflow": false,
+      "logoH": null,
+      "hasEmoji": false,
+      "ghosts": [],
+      "eyebrow": "rgb(174, 22, 21)",
+      "bg": "rgb(255, 255, 255)"
+    },
+    {
+      "i": 4,
+      "title": "Uçtan uca STT boru hattı",
+      "overflowY": false,
+      "childOverflow": false,
+      "logoH": null,
+      "hasEmoji": false,
+      "ghosts": [],
+      "eyebrow": "rgb(174, 22, 21)",
+      "bg": "rgb(255, 255, 255)"
+    },
+    {
+      "i": 5,
+      "title": "Çağrı merkezi → STT akışı",
+      "overflowY": false,
+      "childOverflow": false,
+      "logoH": null,
+      "hasEmoji": false,
+      "ghosts": [],
+      "eyebrow": "rgb(174, 22, 21)",
+      "bg": "rgb(255, 255, 255)"
+    },
+    {
+      "i": 6,
+      "title": "Ingest & preprocess",
+      "overflowY": false,
+      "childOverflow": false,
+      "logoH": null,
+      "hasEmoji": false,
+      "ghosts": [],
+      "eyebrow": "rgb(174, 22, 21)",
+      "bg": "rgb(255, 255, 255)"
+    },
+    {
+      "i": 7,
+      "title": "ASR → postprocess → görselleştirme",
+      "overflowY": false,
+      "childOverflow": false,
+      "logoH": null,
+      "hasEmoji": false,
+      "ghosts": [],
+      "eyebrow": "rgb(174, 22, 21)",
+      "bg": "rgb(255, 255, 255)"
+    },
+    {
+      "i": 8,
+      "title": "KVKK ve güvenlik uyarısı",
+      "overflowY": false,
+      "childOverflow": false,
+      "logoH": null,
+      "hasEmoji": false,
+      "ghosts": [],
+      "eyebrow": "rgb(174, 22, 21)",
+      "bg": "rgb(255, 255, 255)"
+    },
+    {
+      "i": 9,
+      "title": "Projeyi nasıl çalıştırırsınız?",
+      "overflowY": false,
+      "childOverflow": false,
+      "logoH": null,
+      "hasEmoji": false,
+      "ghosts": [],
+      "eyebrow": "rgb(174, 22, 21)",
+      "bg": "rgb(255, 255, 255)"
+    },
+    {
+      "i": 10,
+      "title": "Uygulamada ne yapacaksınız?",
+      "overflowY": false,
+      "childOverflow": false,
+      "logoH": null,
+      "hasEmoji": false,
+      "ghosts": [],
+      "eyebrow": "rgb(174, 22, 21)",
+      "bg": "rgb(255, 255, 255)"
+    },
+    {
+      "i": 11,
+      "title": "Mühendis çıkarımı",
+      "overflowY": false,
+      "childOverflow": false,
+      "logoH": 53,
+      "hasEmoji": false,
+      "ghosts": [],
+      "eyebrow": "rgb(174, 22, 21)",
+      "bg": "rgb(255, 255, 255)"
+    }
+  ]
+}

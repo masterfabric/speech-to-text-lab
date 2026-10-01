@@ -1,0 +1,41 @@
+{
+  "name": "speech-to-text-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TÜİK ALO 124 tarzı çaşrı merkezi sesi için eğitim amaçlı speech-to-text laboratuvarı",
+  "scripts": {
+    "dev": "next dev --port 43123 --hostname 0.0.0.0",
+    "build": "npm run samples && node scripts/sync-slides.js && next build",
+    "start": "next start --port 43123 --hostname 0.0.0.0",
+    "lint": "eslint",
+    "samples": "bash scripts/generate-samples.sh",
+    "analyze": "node scripts/analyze-samples.js",
+    "slides": "node scripts/sync-slides.js && serve slides -l 43210",
+    "sync:slides": "node scripts/sync-slides.js",
+    "samples:cv-long": "python3 scripts/build-cv-long-samples.py",
+    "verify:sample-catalog": "node scripts/verify-sample-catalog-row.mjs",
+    "verify:nlp-opencode": "node scripts/verify-nlp-opencode-panel.mjs",
+    "verify:audio-stage": "node scripts/verify-audio-stage-views.mjs"
+  },
+  "dependencies": {
+    "jspdf": "^4.2.1",
+    "lucide-react": "^1.49.0",
+    "next": "16.3.8",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "wavesurfer.js": "^7.10.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "concurrently": "^9.2.1",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.8",
+    "playwright": "^1.55.0",
+    "serve": "^14.2.5",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 240" role="img" aria-label="Çağrı merkezi STT akışı">
+  <defs>
+    <filter id="cs"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#ae161522"/></filter>
+  </defs>
+  <rect width="900" height="240" rx="20" fill="#fafafa"/>
+  <path d="M150 120 H250 M350 120 H450 M550 120 H650 M750 120 H780" stroke="#ae1615" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.35"/>
+  <path d="M246 114 L258 120 L246 126" fill="none" stroke="#ae1615" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M446 114 L458 120 L446 126" fill="none" stroke="#ae1615" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M646 114 L658 120 L646 126" fill="none" stroke="#ae1615" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Vatandaş: user -->
+  <g filter="url(#cs)">
+    <rect x="40" y="55" width="120" height="130" rx="16" fill="#fff" stroke="#e5e5e5"/>
+    <circle cx="100" cy="95" r="22" fill="#fdf2f2"/>
+    <g transform="translate(100,95) scale(0.85) translate(-12,-12)" fill="none" stroke="#ae1615" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+    </g>
+    <text x="100" y="140" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#0a0a0a">Vatandaş</text>
+    <text x="100" y="158" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#737373">ALO 124</text>
+  </g>
+  <!-- Kayıt: phone -->
+  <g filter="url(#cs)">
+    <rect x="250" y="55" width="120" height="130" rx="16" fill="#fff" stroke="#e5e5e5"/>
+    <circle cx="310" cy="95" r="22" fill="#fdf2f2"/>
+    <g transform="translate(310,95) scale(0.85) translate(-12,-12)" fill="none" stroke="#ae1615" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+    </g>
+    <text x="310" y="140" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#0a0a0a">Kayıt</text>
+    <text x="310" y="158" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#737373">WAV / MP3</text>
+  </g>
+  <!-- STT: mic -->
+  <g filter="url(#cs)">
+    <rect x="450" y="55" width="120" height="130" rx="16" fill="#fff" stroke="#e5e5e5"/>
+    <circle cx="510" cy="95" r="22" fill="#fdf2f2"/>
+    <g transform="translate(510,95) scale(0.85) translate(-12,-12)" fill="none" stroke="#ae1615" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/>
+    </g>
+    <text x="510" y="140" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#0a0a0a">STT</text>
+    <text x="510" y="158" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#737373">ASR motoru</text>
+  </g>
+  <!-- Metin: file-text -->
+  <g filter="url(#cs)">
+    <rect x="650" y="55" width="120" height="130" rx="16" fill="#fff" stroke="#e5e5e5"/>
+    <circle cx="710" cy="95" r="22" fill="#fdf2f2"/>
+    <g transform="translate(710,95) scale(0.85) translate(-12,-12)" fill="none" stroke="#ae1615" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+    </g>
+    <text x="710" y="140" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#0a0a0a">Metin</text>
+    <text x="710" y="158" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#737373">transcript</text>
+  </g>
+  <!-- Metrik: bar-chart -->
+  <g filter="url(#cs)">
+    <rect x="790" y="70" width="80" height="100" rx="14" fill="#fff" stroke="#e5e5e5"/>
+    <g transform="translate(830,108) scale(0.9) translate(-12,-12)" fill="none" stroke="#ae1615" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/>
+    </g>
+    <text x="830" y="148" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#0a0a0a">Metrik</text>
+  </g>
+</svg>

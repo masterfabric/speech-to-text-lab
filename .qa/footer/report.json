@@ -1,0 +1,72 @@
+{
+  "ok": true,
+  "checks": [
+    {
+      "name": "footer-exists",
+      "pass": true,
+      "detail": "{\"colCount\":3,\"colBoxes\":[{\"w\":379,\"h\":167,\"top\":598,\"left\":104},{\"w\":379,\"h\":208,\"top\":598,\"left\":531},{\"w\":379,\"h\":189,\"top\":598,\"left\":957}],\"disclaimerBoxCount\":1,\"hasDuplicateEgitim\":false,\"links\":[{\"href\":\"https://linkedin.com/in/gurkanfikretgunak\",\"text\":\"LinkedIn\"},{\"href\":\"https://masterfabric.co\",\"text\":\"MasterFabric\"},{\"href\":\"/slides/index.html\",\"text\":\"Slaytlar\"},{\"href\":\"https://www.tuik.gov.tr\",\"text\":\"TÜİK\"}],\"ctaText\":\"Laboratuvara git\",\"ctaW\":187,\"bottomBarText\":\"© speech-to-text-lab · eğitim laboratuvarıLogo © Türkiye İstatistik Kurumu · eğitim amaçlı kullanım\",\"footerH\":354,\"emojiInFooter\":false}"
+    },
+    {
+      "name": "three-columns",
+      "pass": true,
+      "detail": "cols=3 boxes=[{\"w\":379,\"h\":167,\"top\":598,\"left\":104},{\"w\":379,\"h\":208,\"top\":598,\"left\":531},{\"w\":379,\"h\":189,\"top\":598,\"left\":957}]"
+    },
+    {
+      "name": "equal-column-rhythm",
+      "pass": true,
+      "detail": "widths=379,379,379 delta=0"
+    },
+    {
+      "name": "columns-aligned-top",
+      "pass": true,
+      "detail": "tops=598,598,598 delta=0"
+    },
+    {
+      "name": "single-disclaimer-heading",
+      "pass": true,
+      "detail": "h2 count=1"
+    },
+    {
+      "name": "link-linkedin",
+      "pass": true,
+      "detail": "[{\"href\":\"https://linkedin.com/in/gurkanfikretgunak\",\"text\":\"LinkedIn\"},{\"href\":\"https://masterfabric.co\",\"text\":\"MasterFabric\"},{\"href\":\"/slides/index.html\",\"text\":\"Slaytlar\"},{\"href\":\"https://www.tuik.gov.tr\",\"text\":\"TÜİK\"}]"
+    },
+    {
+      "name": "link-masterfabric",
+      "pass": true,
+      "detail": "masterfabric.co"
+    },
+    {
+      "name": "link-slides",
+      "pass": true,
+      "detail": "slides"
+    },
+    {
+      "name": "cta-laboratuvara-git",
+      "pass": true,
+      "detail": "Laboratuvara git"
+    },
+    {
+      "name": "cta-substantial",
+      "pass": true,
+      "detail": "ctaW=187"
+    },
+    {
+      "name": "bottom-copyright",
+      "pass": true,
+      "detail": "© speech-to-text-lab · eğitim laboratuvarıLogo © Türkiye İstatistik Kurumu · eğitim amaçlı kullanım"
+    },
+    {
+      "name": "no-emoji",
+      "pass": true,
+      "detail": "emoji=false"
+    },
+    {
+      "name": "footer-not-sparse",
+      "pass": true,
+      "detail": "footerH=354"
+    }
+  ],
+  "errors": [],
+  "at": "2026-10-01T23:10:45.878Z"
+}

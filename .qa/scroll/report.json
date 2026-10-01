@@ -1,0 +1,111 @@
+{
+  "ok": true,
+  "checks": [
+    {
+      "name": "aside-no-overflow-scroll",
+      "pass": true,
+      "detail": "{\"overflowY\":\"visible\",\"position\":\"static\",\"maxHeight\":\"none\",\"clientH\":1493,\"scrollH\":1493,\"canScrollY\":false}"
+    },
+    {
+      "name": "catalog-is-scrollable",
+      "pass": true,
+      "detail": "{\"overflowY\":\"auto\",\"position\":\"static\",\"maxHeight\":\"360px\",\"clientH\":358,\"scrollH\":1916,\"canScrollY\":true}"
+    },
+    {
+      "name": "aside-single-scroll-child",
+      "pass": true,
+      "detail": "[\"Örnek kayıt kataloğu\"]"
+    },
+    {
+      "name": "sticky-player-present",
+      "pass": true,
+      "detail": "count=1 pos=sticky"
+    },
+    {
+      "name": "waveform-visible",
+      "pass": true,
+      "detail": "{\"top\":751,\"height\":128,\"width\":868,\"visible\":true}"
+    },
+    {
+      "name": "catalog-scrolls-inside-box",
+      "pass": true,
+      "detail": "catalogTop 0 → 480"
+    },
+    {
+      "name": "wheel-on-catalog-no-page-jump",
+      "pass": true,
+      "detail": "page scrollY 0 → 0"
+    },
+    {
+      "name": "waveform-still-visible-after-scroll",
+      "pass": true,
+      "detail": "{\"scrollY\":700,\"stickyTop\":16,\"stickyPosition\":\"sticky\",\"wave\":{\"top\":361,\"height\":128,\"visible\":true}}"
+    },
+    {
+      "name": "player-sticky-engaged",
+      "pass": true,
+      "detail": "{\"stickyTop\":16,\"stickyPosition\":\"sticky\"}"
+    },
+    {
+      "name": "no-double-scrollbar-aside-plus-catalog",
+      "pass": true,
+      "detail": "{\"asideBar\":false,\"catalogBar\":true,\"bodyBar\":true}"
+    }
+  ],
+  "errors": [],
+  "at": "2026-10-01T23:01:56.192Z",
+  "metrics": {
+    "docScrollable": true,
+    "aside": {
+      "overflowY": "visible",
+      "position": "static",
+      "maxHeight": "none",
+      "clientH": 1493,
+      "scrollH": 1493,
+      "canScrollY": false
+    },
+    "catalog": {
+      "overflowY": "auto",
+      "position": "static",
+      "maxHeight": "360px",
+      "clientH": 358,
+      "scrollH": 1916,
+      "canScrollY": true
+    },
+    "stickyCount": 1,
+    "stickyPosition": "sticky",
+    "waveform": {
+      "top": 751,
+      "height": 128,
+      "width": 868,
+      "visible": true
+    },
+    "scrollables": [
+      {
+        "label": "Örnek kayıt kataloğu",
+        "overflowY": "auto",
+        "canScrollY": true,
+        "inAside": true
+      }
+    ]
+  },
+  "afterWheel": {
+    "scrollY": 0,
+    "catalogTop": 480
+  },
+  "afterPageScroll": {
+    "scrollY": 700,
+    "stickyTop": 16,
+    "stickyPosition": "sticky",
+    "wave": {
+      "top": 361,
+      "height": 128,
+      "visible": true
+    }
+  },
+  "bars": {
+    "asideBar": false,
+    "catalogBar": true,
+    "bodyBar": true
+  }
+}

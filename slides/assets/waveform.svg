@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 260" role="img" aria-label="Ses dalga formu ve VAD kavramı">
+  <defs>
+    <linearGradient id="wf" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ae1615"/>
+      <stop offset="100%" stop-color="#6e0e0d"/>
+    </linearGradient>
+  </defs>
+  <rect width="880" height="260" rx="20" fill="#fafafa"/>
+  <rect x="24" y="24" width="832" height="160" rx="14" fill="#fff" stroke="#e5e5e5"/>
+  <line x1="48" y1="104" x2="832" y2="104" stroke="#e5e5e5" stroke-width="1"/>
+  <g fill="url(#wf)" opacity="0.92">
+    <rect x="56" y="92" width="6" height="24" rx="2"/>
+    <rect x="68" y="78" width="6" height="52" rx="2"/>
+    <rect x="80" y="68" width="6" height="72" rx="2"/>
+    <rect x="92" y="84" width="6" height="40" rx="2"/>
+    <rect x="104" y="58" width="6" height="92" rx="2"/>
+    <rect x="116" y="72" width="6" height="64" rx="2"/>
+    <rect x="128" y="88" width="6" height="32" rx="2"/>
+    <rect x="140" y="96" width="6" height="16" rx="2" opacity="0.35"/>
+    <rect x="152" y="98" width="6" height="12" rx="2" opacity="0.25"/>
+    <rect x="164" y="99" width="6" height="10" rx="2" opacity="0.2"/>
+    <rect x="176" y="100" width="6" height="8" rx="2" opacity="0.15"/>
+    <rect x="188" y="98" width="6" height="12" rx="2" opacity="0.25"/>
+    <rect x="200" y="86" width="6" height="36" rx="2"/>
+    <rect x="212" y="64" width="6" height="80" rx="2"/>
+    <rect x="224" y="52" width="6" height="104" rx="2"/>
+    <rect x="236" y="70" width="6" height="68" rx="2"/>
+    <rect x="248" y="80" width="6" height="48" rx="2"/>
+    <rect x="260" y="60" width="6" height="88" rx="2"/>
+    <rect x="272" y="74" width="6" height="60" rx="2"/>
+    <rect x="284" y="90" width="6" height="28" rx="2"/>
+    <rect x="296" y="96" width="6" height="16" rx="2" opacity="0.3"/>
+    <rect x="308" y="98" width="6" height="12" rx="2" opacity="0.2"/>
+    <rect x="320" y="99" width="6" height="10" rx="2" opacity="0.15"/>
+    <rect x="332" y="88" width="6" height="32" rx="2"/>
+    <rect x="344" y="66" width="6" height="76" rx="2"/>
+    <rect x="356" y="48" width="6" height="112" rx="2"/>
+    <rect x="368" y="56" width="6" height="96" rx="2"/>
+    <rect x="380" y="72" width="6" height="64" rx="2"/>
+    <rect x="392" y="84" width="6" height="40" rx="2"/>
+    <rect x="404" y="62" width="6" height="84" rx="2"/>
+    <rect x="416" y="76" width="6" height="56" rx="2"/>
+    <rect x="428" y="92" width="6" height="24" rx="2"/>
+    <rect x="440" y="98" width="6" height="12" rx="2" opacity="0.25"/>
+    <rect x="452" y="100" width="6" height="8" rx="2" opacity="0.15"/>
+    <rect x="464" y="96" width="6" height="16" rx="2" opacity="0.3"/>
+    <rect x="476" y="82" width="6" height="44" rx="2"/>
+    <rect x="488" y="58" width="6" height="92" rx="2"/>
+    <rect x="500" y="46" width="6" height="116" rx="2"/>
+    <rect x="512" y="68" width="6" height="72" rx="2"/>
+    <rect x="524" y="78" width="6" height="52" rx="2"/>
+    <rect x="536" y="54" width="6" height="100" rx="2"/>
+    <rect x="548" y="70" width="6" height="68" rx="2"/>
+    <rect x="560" y="88" width="6" height="32" rx="2"/>
+    <rect x="572" y="94" width="6" height="20" rx="2" opacity="0.4"/>
+    <rect x="584" y="98" width="6" height="12" rx="2" opacity="0.25"/>
+    <rect x="596" y="100" width="6" height="8" rx="2" opacity="0.15"/>
+    <rect x="608" y="99" width="6" height="10" rx="2" opacity="0.2"/>
+    <rect x="620" y="86" width="6" height="36" rx="2"/>
+    <rect x="632" y="64" width="6" height="80" rx="2"/>
+    <rect x="644" y="50" width="6" height="108" rx="2"/>
+    <rect x="656" y="72" width="6" height="64" rx="2"/>
+    <rect x="668" y="80" width="6" height="48" rx="2"/>
+    <rect x="680" y="90" width="6" height="28" rx="2"/>
+    <rect x="692" y="96" width="6" height="16" rx="2" opacity="0.35"/>
+    <rect x="704" y="98" width="6" height="12" rx="2" opacity="0.25"/>
+    <rect x="716" y="84" width="6" height="40" rx="2"/>
+    <rect x="728" y="68" width="6" height="72" rx="2"/>
+    <rect x="740" y="78" width="6" height="52" rx="2"/>
+    <rect x="752" y="92" width="6" height="24" rx="2"/>
+    <rect x="764" y="96" width="6" height="16" rx="2" opacity="0.3"/>
+    <rect x="776" y="98" width="6" height="12" rx="2" opacity="0.2"/>
+    <rect x="788" y="100" width="6" height="8" rx="2" opacity="0.15"/>
+    <rect x="800" y="99" width="6" height="10" rx="2" opacity="0.18"/>
+    <rect x="812" y="97" width="6" height="14" rx="2" opacity="0.28"/>
+  </g>
+  <rect x="56" y="176" width="88" height="8" rx="4" fill="#ae1615"/>
+  <rect x="200" y="176" width="96" height="8" rx="4" fill="#ae1615"/>
+  <rect x="332" y="176" width="104" height="8" rx="4" fill="#ae1615"/>
+  <rect x="476" y="176" width="96" height="8" rx="4" fill="#ae1615"/>
+  <rect x="620" y="176" width="72" height="8" rx="4" fill="#ae1615"/>
+  <rect x="716" y="176" width="48" height="8" rx="4" fill="#ae1615"/>
+  <text x="56" y="208" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="#0a0a0a">VAD: konuşma bölgeleri</text>
+  <text x="240" y="208" font-family="system-ui,sans-serif" font-size="13" fill="#737373">soluk çubuklar = sessizlik / boşluk</text>
+  <circle cx="780" cy="204" r="5" fill="#ae1615"/>
+  <text x="792" y="208" font-family="system-ui,sans-serif" font-size="12" fill="#525252">konuşma</text>
+</svg>

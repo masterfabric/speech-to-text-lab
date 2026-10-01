@@ -1,0 +1,16 @@
+TÜİK (Türkiye İstatistik Kurumu) logo — educational / lab use only
+
+Primary file: tuik-logo.svg
+Source URL:  https://www.tuik.gov.tr/static/img/SVG/tuik_logo.svg
+Page:        https://www.tuik.gov.tr
+Retrieved:   2026-10-02
+
+Also discovered on the official site (for reference):
+- https://www.tuik.gov.tr/static/img/SVG/tuik_logo_white_tr.svg  (white header logo)
+- https://www.tuik.gov.tr/static/img/SVG/tuik_mobil_logo.svg     (mobile header logo)
+- https://www.tuik.gov.tr/static/img/favicon.ico
+- Corporate identity guide: https://www.tuik.gov.tr/media/corporatecontent/tuik_kurumsal_kimlik.pdf
+
+Disclaimer: Logo © Türkiye İstatistik Kurumu. Used here solely for educational /
+non-commercial laboratory demonstration (speech-to-text-lab). Not an official
+TÜİK product or endorsement. ALO 124 is referenced for training context only.

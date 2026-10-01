@@ -1,0 +1,550 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Brain, FileAudio, Layers, PanelTop, Rows3 } from "lucide-react";
+import { AudioPlayer } from "@/components/AudioPlayer";
+import { AudioUploader } from "@/components/AudioUploader";
+import { SampleCatalogRow } from "@/components/SampleCatalogRow";
+import { MetricsDashboard } from "@/components/MetricsDashboard";
+import { BatchPanel } from "@/components/BatchPanel";
+import { NlpOpenCodePanel } from "@/components/NlpOpenCodePanel";
+import { ReportPanel } from "@/components/ReportPanel";
+import { SentimentPanel } from "@/components/SentimentPanel";
+import { TranscriptPanel } from "@/components/TranscriptPanel";
+import { PipelineStagesPanel } from "@/components/PipelineStagesPanel";
+import { SttModeSelector } from "@/components/SttModeSelector";
+import { Waveform } from "@/components/Waveform";
+import { decodeAudioFile, isAudioFile } from "@/lib/audio-utils";
+import { SAMPLE_CATALOG, sampleAudioSources } from "@/lib/constants";
+import { runLabPipeline, sttModeHasStages, type SttMode } from "@/lib/stt-pipeline";
+import type { LabResult, PipelineStage } from "@/lib/types";
+
+const PIPELINE_STEPS = [
+  { id: 1, label: "Yükle / Örnek" },
+  { id: 2, label: "Dinle" },
+  { id: 3, label: "Transkribe" },
+  { id: 4, label: "Duygu" },
+  { id: 5, label: "Rapor" },
+] as const;
+
+export function LabWorkspace() {
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [selectedSample, setSelectedSample] = useState<string | null>(null);
+  const [durationSec, setDurationSec] = useState(0);
+  const [sampleRate, setSampleRate] = useState(16000);
+  const [mode, setMode] = useState<SttMode>("mock");
+  const [liveStages, setLiveStages] = useState<PipelineStage[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<LabResult | null>(null);
+  const [objectUrl, setObjectUrl] = useState<string | null>(null);
+  const [playedOnce, setPlayedOnce] = useState(false);
+  const [pageDragging, setPageDragging] = useState(false);
+  const pageDragDepth = useRef(0);
+  const [workspaceMode, setWorkspaceMode] = useState<"single" | "batch" | "nlp">("single");
+  const [currentTime, setCurrentTime] = useState(0);
+  const seekAudioRef = useRef<((time: number) => void) | null>(null);
+  /** Minimal (default): timeline player + waveform only. Detay: catalog + cards. */
+  const [audioStageView, setAudioStageView] = useState<"minimal" | "detail">(
+    "minimal"
+  );
+
+  const handleSeek = useCallback((time: number) => {
+    seekAudioRef.current?.(time);
+    setCurrentTime(time);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [objectUrl]);
+
+  const sampleSources = useMemo(() => {
+    if (!selectedSample) return null;
+    return sampleAudioSources(selectedSample);
+  }, [selectedSample]);
+
+  const loadSample = useCallback(
+    async (name: string) => {
+      setError(null);
+      setResult(null);
+      setPlayedOnce(false);
+      setCurrentTime(0);
+      setSelectedSample(name);
+      setFileName(name);
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+        setObjectUrl(null);
+      }
+      const url = `/samples/${name}`;
+      setAudioUrl(url);
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Örnek dosya bulunamadı");
+        const blob = await res.blob();
+        const info = await decodeAudioFile(blob);
+        setDurationSec(info.durationSec);
+        setSampleRate(info.sampleRate);
+      } catch (e) {
+        setError(
+          e instanceof Error
+            ? e.message
+            : "Örnek ses yüklenirken hata oluştu. scripts/generate-samples.sh çalıştırın."
+        );
+      }
+    },
+    [objectUrl]
+  );
+
+  const onUpload = useCallback(
+    async (file: File) => {
+      setError(null);
+      setResult(null);
+      setPlayedOnce(false);
+      setCurrentTime(0);
+      setSelectedSample(null);
+      setFileName(file.name);
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      const url = URL.createObjectURL(file);
+      setObjectUrl(url);
+      setAudioUrl(url);
+      try {
+        const info = await decodeAudioFile(file);
+        setDurationSec(info.durationSec);
+        setSampleRate(info.sampleRate);
+      } catch {
+        setError("Ses dosyası çözümlenemedi. WAV/MP3 deneyin.");
+      }
+    },
+    [objectUrl]
+  );
+
+  const onWaveReady = useCallback((d: number) => {
+    if (d > 0) setDurationSec(d);
+  }, []);
+
+  const transcribe = useCallback(async () => {
+    if (!fileName || !audioUrl) {
+      setError("Önce bir örnek seçin veya dosya yükleyin.");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    setLiveStages(sttModeHasStages(mode) ? [] : null);
+    try {
+      if (!sttModeHasStages(mode)) {
+        await new Promise((r) => setTimeout(r, 450));
+      }
+      const lab = await runLabPipeline({
+        fileName,
+        durationSec: durationSec || 8,
+        sampleRate,
+        mode,
+        audioUrl,
+        onPipelineStage: (stage) => {
+          setLiveStages((prev) => [...(prev ?? []), stage]);
+        },
+      });
+      setResult(lab);
+      if (lab.pipelineStages) setLiveStages(lab.pipelineStages);
+    } catch (e) {
+      setError(
+        e instanceof Error ? e.message : "Transkripsiyon sırasında hata oluştu."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [audioUrl, durationSec, fileName, mode, sampleRate]);
+
+  useEffect(() => {
+    const first = SAMPLE_CATALOG[0]?.fileName;
+    if (first) void loadSample(first);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const activeStep = !audioUrl
+    ? 1
+    : !result
+      ? playedOnce || durationSec > 0
+        ? loading
+          ? 3
+          : 2
+        : 2
+      : 5;
+
+
+  const resetPageDrag = useCallback(() => {
+    pageDragDepth.current = 0;
+    setPageDragging(false);
+  }, []);
+
+  const handlePageDragEnter = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (loading) return;
+      pageDragDepth.current += 1;
+      if (e.dataTransfer?.types?.includes("Files")) {
+        setPageDragging(true);
+      }
+    },
+    [loading]
+  );
+
+  const handlePageDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    pageDragDepth.current = Math.max(0, pageDragDepth.current - 1);
+    if (pageDragDepth.current === 0) setPageDragging(false);
+  }, []);
+
+  const handlePageDragOver = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (loading) return;
+      e.dataTransfer.dropEffect = "copy";
+    },
+    [loading]
+  );
+
+  const handlePageDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      resetPageDrag();
+      if (loading) return;
+      const files = e.dataTransfer.files;
+      let file: File | null = null;
+      if (files?.length) {
+        for (let i = 0; i < files.length; i++) {
+          if (isAudioFile(files[i])) {
+            file = files[i];
+            break;
+          }
+        }
+      }
+      if (!file) {
+        alert("Lütfen geçerli bir ses dosyası bırakın (WAV/MP3/M4A).");
+        return;
+      }
+      void onUpload(file);
+    },
+    [loading, onUpload, resetPageDrag]
+  );
+
+  return (
+    <div className="space-y-6">
+      <div
+        role="tablist"
+        aria-label="Çalışma alanı modu"
+        className="mx-auto flex max-w-7xl gap-1 rounded-xl border border-tuik/30 bg-white p-1 shadow-sm"
+      >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={workspaceMode === "single"}
+          onClick={() => setWorkspaceMode("single")}
+          className={`inline-flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
+            workspaceMode === "single"
+              ? "bg-tuik text-white shadow-sm shadow-tuik/20"
+              : "text-slate-600 hover:bg-tuik-soft hover:text-tuik-dim"
+          }`}
+        >
+          <FileAudio className="h-4 w-4" aria-hidden />
+          Tek dosya
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={workspaceMode === "batch"}
+          onClick={() => setWorkspaceMode("batch")}
+          className={`inline-flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
+            workspaceMode === "batch"
+              ? "bg-tuik text-white shadow-sm shadow-tuik/20"
+              : "text-slate-600 hover:bg-tuik-soft hover:text-tuik-dim"
+          }`}
+        >
+          <Layers className="h-4 w-4" aria-hidden />
+          Toplu işleme
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={workspaceMode === "nlp"}
+          data-testid="tab-nlp-opencode"
+          onClick={() => setWorkspaceMode("nlp")}
+          className={`inline-flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
+            workspaceMode === "nlp"
+              ? "bg-tuik text-white shadow-sm shadow-tuik/20"
+              : "text-slate-600 hover:bg-tuik-soft hover:text-tuik-dim"
+          }`}
+        >
+          <Brain className="h-4 w-4" aria-hidden />
+          NLP / OpenCode
+        </button>
+      </div>
+
+      {workspaceMode === "batch" ? <BatchPanel /> : null}
+
+      {workspaceMode === "nlp" ? (
+        <NlpOpenCodePanel
+          key={result?.processedAt ?? "no-lab-result"}
+          labResult={result}
+        />
+      ) : null}
+
+      {workspaceMode === "single" ? (
+    <div
+      className={`relative mx-auto grid max-w-7xl items-start gap-8 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)] ${
+        pageDragging ? "rounded-2xl ring-2 ring-tuik/50 ring-offset-4 ring-offset-[#fafafa]" : ""
+      }`}
+      onDragEnter={handlePageDragEnter}
+      onDragLeave={handlePageDragLeave}
+      onDragOver={handlePageDragOver}
+      onDrop={handlePageDrop}
+    >
+      {pageDragging ? (
+        <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-tuik-soft/80 backdrop-blur-[1px]">
+          <div className="rounded-xl border-2 border-dashed border-tuik bg-white px-6 py-4 text-center shadow-lg shadow-tuik/15">
+            <p className="text-sm font-semibold text-tuik-deep">
+              Ses dosyasını buraya sürükleyin
+            </p>
+            <p className="mt-1 text-xs text-slate-600">WAV · MP3 · M4A</p>
+          </div>
+        </div>
+      ) : null}
+
+      <aside className="order-2 space-y-4 lg:order-none">
+        <ol className="flex flex-wrap gap-2 rounded-xl border border-tuik/30 bg-gradient-to-r from-white to-tuik-soft/50 p-3">
+          {PIPELINE_STEPS.map((step) => {
+            const done =
+              (step.id === 1 && !!audioUrl) ||
+              (step.id === 2 && !!audioUrl) ||
+              (step.id === 3 && !!result) ||
+              (step.id === 4 && !!result) ||
+              (step.id === 5 && !!result);
+            const current = activeStep === step.id || (result && step.id >= 3);
+            return (
+              <li
+                key={step.id}
+                className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${
+                  done
+                    ? "bg-tuik text-white ring-tuik"
+                    : current
+                      ? "bg-tuik-soft text-tuik-deep ring-tuik/50"
+                      : "bg-white text-slate-500 ring-slate-200"
+                }`}
+              >
+                <span className="tabular-nums">{step.id}</span>
+                {step.label}
+              </li>
+            );
+          })}
+        </ol>
+
+        <AudioUploader
+          onSelectSample={(n) => void loadSample(n)}
+          onUpload={(f) => void onUpload(f)}
+          disabled={loading}
+        />
+
+        <SttModeSelector
+          value={mode}
+          onChange={(m) => {
+            setMode(m);
+            setResult(null);
+            setLiveStages(null);
+            setError(null);
+          }}
+          disabled={loading}
+        />
+
+        <button
+          type="button"
+          onClick={() => void transcribe()}
+          disabled={loading || !audioUrl}
+          className="w-full rounded-xl bg-tuik px-4 py-3 text-sm font-semibold text-white transition hover:bg-tuik-dim disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {loading
+            ? "İşleniyor: STT → duygu → rapor…"
+            : "Transkribe et + duygu analizi"}
+        </button>
+      </aside>
+
+      <section className="order-1 min-w-0 space-y-6 lg:order-none">
+        <div className="min-w-0 space-y-3 bg-[#fafafa] lg:sticky lg:top-4 lg:z-10 lg:pb-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div
+              role="group"
+              aria-label="Ses sahnesi görünümü"
+              data-testid="audio-stage-view-toggle"
+              className="inline-flex gap-0.5 rounded-lg border border-tuik/30 bg-white p-0.5 shadow-sm"
+            >
+              <button
+                type="button"
+                aria-pressed={audioStageView === "minimal"}
+                data-testid="audio-stage-view-minimal"
+                onClick={() => setAudioStageView("minimal")}
+                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition ${
+                  audioStageView === "minimal"
+                    ? "bg-tuik text-white shadow-sm shadow-tuik/20"
+                    : "text-slate-600 hover:bg-tuik-soft hover:text-tuik-dim"
+                }`}
+              >
+                <PanelTop className="h-3.5 w-3.5" aria-hidden />
+                Minimal
+              </button>
+              <button
+                type="button"
+                aria-pressed={audioStageView === "detail"}
+                data-testid="audio-stage-view-detail"
+                onClick={() => setAudioStageView("detail")}
+                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition ${
+                  audioStageView === "detail"
+                    ? "bg-tuik text-white shadow-sm shadow-tuik/20"
+                    : "text-slate-600 hover:bg-tuik-soft hover:text-tuik-dim"
+                }`}
+              >
+                <Rows3 className="h-3.5 w-3.5" aria-hidden />
+                Detay
+              </button>
+            </div>
+            {fileName ? (
+              <span className="rounded-md bg-tuik-soft px-2 py-1 text-[10px] font-medium text-tuik-dim ring-1 ring-tuik/30">
+                {fileName}
+                {durationSec > 0
+                  ? ` · ${durationSec.toFixed(1)} sn · ${Math.round(sampleRate)} Hz`
+                  : ""}
+              </span>
+            ) : null}
+          </div>
+
+          {audioStageView === "minimal" ? (
+            <div
+              data-testid="audio-stage-minimal"
+              className="min-w-0 space-y-1.5 overflow-hidden rounded-xl border border-tuik/30 bg-white p-2 shadow-sm"
+            >
+              <div onPlayCapture={() => setPlayedOnce(true)}>
+                <AudioPlayer
+                  compact
+                  src={selectedSample ? null : audioUrl}
+                  sources={selectedSample ? sampleSources : null}
+                  label={fileName ? `${fileName} oynatıcı` : "Ses oynatıcı"}
+                  onTimeUpdate={setCurrentTime}
+                  onDurationChange={(d) => {
+                    if (d > 0) setDurationSec(d);
+                  }}
+                  seekRef={seekAudioRef}
+                />
+              </div>
+              <Waveform
+                compact
+                height={48}
+                url={audioUrl}
+                onReady={onWaveReady}
+                currentTime={currentTime}
+                duration={durationSec}
+                onSeek={handleSeek}
+              />
+            </div>
+          ) : (
+            <div data-testid="audio-stage-detail" className="min-w-0 space-y-4">
+              <SampleCatalogRow
+                selectedSample={selectedSample}
+                onSelectSample={(n) => void loadSample(n)}
+                disabled={loading}
+              />
+
+              <div className="rounded-xl border border-tuik/30 bg-white p-5 shadow-sm">
+                <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+                  <div>
+                    <h2 className="text-lg font-semibold text-tuik-dim">
+                      Ses oynatıcı
+                    </h2>
+                    <p className="text-xs text-slate-600">
+                      Seçilen örneği dinleyin — WAV (PCM) + M4A (AAC) yedek kaynak
+                    </p>
+                  </div>
+                  {fileName ? (
+                    <span className="rounded-md bg-tuik-soft px-2 py-1 text-xs font-medium text-tuik-dim ring-1 ring-tuik/30">
+                      {fileName}
+                    </span>
+                  ) : null}
+                </div>
+                <div onPlayCapture={() => setPlayedOnce(true)}>
+                  <AudioPlayer
+                    src={selectedSample ? null : audioUrl}
+                    sources={selectedSample ? sampleSources : null}
+                    label={fileName ? `${fileName} oynatıcı` : "Ses oynatıcı"}
+                    onTimeUpdate={setCurrentTime}
+                    onDurationChange={(d) => {
+                      if (d > 0) setDurationSec(d);
+                    }}
+                    seekRef={seekAudioRef}
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+                  <div>
+                    <h2 className="text-lg font-semibold text-slate-900">
+                      Dalga formu
+                    </h2>
+                    <p className="text-xs text-slate-600">
+                      {fileName ?? "Dosya seçilmedi"}
+                      {durationSec > 0
+                        ? ` · ${durationSec.toFixed(2)} sn · ${Math.round(sampleRate)} Hz`
+                        : ""}
+                    </p>
+                  </div>
+                </div>
+                <Waveform
+                  url={audioUrl}
+                  onReady={onWaveReady}
+                  currentTime={currentTime}
+                  duration={durationSec}
+                  onSeek={handleSeek}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {(sttModeHasStages(mode) || (result?.pipelineStages?.length ?? 0) > 0) ? (
+          <PipelineStagesPanel
+            stages={result?.pipelineStages ?? liveStages}
+            loading={loading && sttModeHasStages(mode)}
+            variant={
+              mode === "vad-ngram" || mode === "keyword-spot" || mode === "pipeline"
+                ? mode
+                : undefined
+            }
+          />
+        ) : null}
+
+        <MetricsDashboard metrics={result?.metrics ?? null} loading={loading} />
+        <TranscriptPanel
+          transcript={result?.transcript ?? null}
+          loading={loading}
+          error={error}
+        />
+        <SentimentPanel sentiment={result?.sentiment ?? null} loading={loading} />
+        <ReportPanel result={result} loading={loading} />
+
+        {result ? (
+          <p className="text-xs text-slate-500">
+            İşlendi: {new Date(result.processedAt).toLocaleString("tr-TR")} · Kaynak:{" "}
+            {result.transcript.source} · Duygu: {result.sentiment.label}/
+            {result.sentiment.emotion}
+          </p>
+        ) : null}
+      </section>
+    </div>
+      ) : null}
+    </div>
+  );
+}

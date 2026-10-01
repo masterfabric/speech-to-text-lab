@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  /* TÜİK brand red from tuik-logo.svg */
+  --tuik: #ae1615;
+  --tuik-dim: #8b1211;
+  --tuik-deep: #6e0e0d;
+  --tuik-soft: #fdf2f2;
+  --tuik-muted: #f8e0e0;
+  --surface: #ffffff;
+  --surface-muted: #fafafa;
+  --border-soft: #e5e5e5;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-tuik: var(--tuik);
+  --color-tuik-dim: var(--tuik-dim);
+  --color-tuik-deep: var(--tuik-deep);
+  --color-tuik-soft: var(--tuik-soft);
+  --color-tuik-muted: var(--tuik-muted);
+  --font-sans: var(--font-source-sans);
+  --font-display: var(--font-sora);
+  --font-mono: var(--font-jetbrains);
+}
+
+body {
+  background: #ffffff;
+  color: var(--foreground);
+  min-height: 100vh;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--tuik) 35%, white);
+  color: #0a0a0a;
+}
+
+:focus-visible {
+  outline: 2px solid var(--tuik);
+  outline-offset: 2px;
+}
+
+/* Origin LabWorkspace utilities (white + TÜİK red) */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid color-mix(in srgb, var(--tuik) 18%, #e5e5e5);
+  box-shadow: 0 18px 50px -24px rgba(0, 0, 0, 0.12);
+}
+
+.step-index {
+  display: inline-flex;
+  height: 1.75rem;
+  width: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--tuik);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.accent-bar {
+  height: 3px;
+  background: var(--tuik);
+}
+
+.footer-credit-link {
+  position: relative;
+  display: inline;
+  color: var(--tuik);
+  text-decoration: none;
+  font-weight: 700;
+  transition: color 160ms ease;
+}
+
+.footer-credit-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.12em;
+  height: 0.28em;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 8' preserveAspectRatio='none'%3E%3Cpath d='M0 4 Q5 0 10 4 T20 4 T30 4 T40 4' fill='none' stroke='%23ae1615' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: 0.9em 100%;
+  background-position: left bottom;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.45s ease;
+}
+
+.footer-credit-link:hover,
+.footer-credit-link:focus-visible {
+  color: var(--tuik-deep);
+}
+
+.footer-credit-link:hover::after,
+.footer-credit-link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-credit-link::after {
+    transition: none;
+    transform: scaleX(1);
+    opacity: 0;
+  }
+  .footer-credit-link:hover::after,
+  .footer-credit-link:focus-visible::after {
+    opacity: 1;
+  }
+}
+
+
+#lab-upload-zone.lab-focus-pulse {
+  animation: lab-focus-pulse 1.8s ease-out;
+}
+
+@keyframes lab-focus-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  18% {
+    box-shadow: 0 0 0 4px var(--tuik), 0 0 0 8px color-mix(in srgb, var(--tuik) 22%, transparent);
+  }
+  55% {
+    box-shadow: 0 0 0 2px var(--tuik), 0 0 0 6px color-mix(in srgb, var(--tuik) 14%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #lab-upload-zone.lab-focus-pulse {
+    animation: none;
+    box-shadow: 0 0 0 3px var(--tuik);
+  }
+}
+
+
+/* OpenCode agent chat thread */
+@keyframes opencode-bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.opencode-bubble-enter {
+  animation: opencode-bubble-in 280ms ease-out both;
+}
+
+.opencode-chat-card {
+  transition:
+    max-height 0.4s ease,
+    padding 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.opencode-chat-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s ease;
+}
+
+.opencode-chat-body[data-expanded="true"] {
+  grid-template-rows: 1fr;
+}
+
+.opencode-chat-body > .opencode-chat-body-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .opencode-bubble-enter {
+    animation: none;
+  }
+  .opencode-chat-card,
+  .opencode-chat-body {
+    transition: none;
+  }
+}

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 220" role="img" aria-label="STT boru hattı diyagramı">
+  <defs>
+    <filter id="s" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#ae161522"/>
+    </filter>
+  </defs>
+  <rect width="920" height="220" rx="20" fill="#fafafa"/>
+  <rect x="16" y="16" width="888" height="188" rx="16" fill="#fdf2f2" opacity="0.7"/>
+  <path d="M170 110 H210 M330 110 H370 M490 110 H530 M650 110 H690" stroke="#d4d4d4" stroke-width="2.5" stroke-dasharray="5 5" fill="none"/>
+  <path d="M208 104 L220 110 L208 116" fill="none" stroke="#ae1615" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M368 104 L380 110 L368 116" fill="none" stroke="#ae1615" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M528 104 L540 110 L528 116" fill="none" stroke="#ae1615" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M688 104 L700 110 L688 116" fill="none" stroke="#ae1615" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Ingest: download -->
+  <g filter="url(#s)">
+    <rect x="36" y="58" width="134" height="104" rx="16" fill="#fff" stroke="#e5e5e5" stroke-width="1.5"/>
+    <circle cx="103" cy="88" r="18" fill="#fdf2f2"/>
+    <g transform="translate(103,88) scale(0.75) translate(-12,-12)" fill="none" stroke="#ae1615" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+    </g>
+    <text x="103" y="124" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="#0a0a0a">Ingest</text>
+    <text x="103" y="144" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#737373">kayıt · meta</text>
+  </g>
+  <!-- Preprocess: waveform -->
+  <g filter="url(#s)">
+    <rect x="220" y="58" width="134" height="104" rx="16" fill="#fff" stroke="#e5e5e5" stroke-width="1.5"/>
+    <circle cx="287" cy="88" r="18" fill="#fdf2f2"/>
+    <g transform="translate(287,88) scale(0.75) translate(-12,-12)" fill="none" stroke="#ae1615" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2 10v4"/><path d="M6 6v12"/><path d="M10 3v18"/><path d="M14 8v8"/><path d="M18 5v14"/><path d="M22 10v4"/>
+    </g>
+    <text x="287" y="124" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="#0a0a0a">Preprocess</text>
+    <text x="287" y="144" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#737373">16kHz · VAD</text>
+  </g>
+  <!-- ASR: mic -->
+  <g filter="url(#s)">
+    <rect x="380" y="58" width="134" height="104" rx="16" fill="#fff" stroke="#e5e5e5" stroke-width="1.5"/>
+    <circle cx="447" cy="88" r="18" fill="#fdf2f2"/>
+    <g transform="translate(447,88) scale(0.75) translate(-12,-12)" fill="none" stroke="#ae1615" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/>
+    </g>
+    <text x="447" y="124" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="#0a0a0a">ASR / STT</text>
+    <text x="447" y="144" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#737373">metin · zaman</text>
+  </g>
+  <!-- Postprocess: file-text -->
+  <g filter="url(#s)">
+    <rect x="540" y="58" width="134" height="104" rx="16" fill="#fff" stroke="#e5e5e5" stroke-width="1.5"/>
+    <circle cx="607" cy="88" r="18" fill="#fdf2f2"/>
+    <g transform="translate(607,88) scale(0.75) translate(-12,-12)" fill="none" stroke="#ae1615" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+    </g>
+    <text x="607" y="124" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="#0a0a0a">Postprocess</text>
+    <text x="607" y="144" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#737373">PII · noktalama</text>
+  </g>
+  <!-- Analytics: bar-chart -->
+  <g filter="url(#s)">
+    <rect x="700" y="58" width="184" height="104" rx="16" fill="#fff" stroke="#e5e5e5" stroke-width="1.5"/>
+    <circle cx="792" cy="88" r="18" fill="#fdf2f2"/>
+    <g transform="translate(792,88) scale(0.75) translate(-12,-12)" fill="none" stroke="#ae1615" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/>
+    </g>
+    <text x="792" y="124" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="#0a0a0a">Analytics</text>
+    <text x="792" y="144" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#737373">metrik · anahtar kelime</text>
+  </g>
+</svg>

@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>ALO 124 STT Lab — Slaytlar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css"/>
+<style>
+:root {
+  --r-background-color: #ffffff;
+  --r-main-font: "Source Sans 3", system-ui, -apple-system, sans-serif;
+  --r-heading-font: "Sora", "Source Sans 3", system-ui, sans-serif;
+  --r-heading-color: #0a0a0a;
+  --r-main-color: #262626;
+  --r-link-color: #ae1615;
+  --r-link-color-hover: #8b1211;
+  --r-selection-background-color: #f8e0e0;
+  --r-heading-font-weight: 650;
+  --r-heading-text-transform: none;
+  --r-heading-letter-spacing: -0.02em;
+  --tuik: #ae1615;
+  --tuik-dim: #8b1211;
+  --tuik-deep: #6e0e0d;
+  --tuik-soft: #fdf2f2;
+  --tuik-muted: #f8e0e0;
+  --surface: #ffffff;
+  --muted: #737373;
+  --line: #e5e5e5;
+  --soft: #fafafa;
+  --img-max: 40vh;
+  --img-compact: 36vh;
+}
+
+.reveal {
+  font-weight: 450;
+  letter-spacing: -0.01em;
+  color: #262626;
+}
+.reveal .slides {
+  text-align: left;
+}
+.reveal .slides section {
+  box-sizing: border-box;
+  height: 100%;
+  padding: 0.15em 0.1em;
+  overflow: hidden;
+  background: #ffffff;
+}
+.reveal .slides > section:not(.present):not(.stack) {
+  /* keep fade usable but hide fully after transition for static capture */
+  visibility: hidden;
+}
+.reveal .slides > section.present,
+.reveal .slides > section.stack.present {
+  visibility: visible;
+}
+.reveal .slides section.present {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.reveal h1, .reveal h2, .reveal h3 {
+  font-family: var(--r-heading-font);
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  margin: 0 0 0.28em;
+  flex-shrink: 0;
+  color: #0a0a0a;
+}
+.reveal h1 { font-size: 1.85em; line-height: 1.12; }
+.reveal h2 { font-size: 1.28em; line-height: 1.18; }
+.reveal p, .reveal li {
+  line-height: 1.4;
+}
+.reveal ul, .reveal ol {
+  margin: 0.15em 0 0 0.15em;
+  flex-shrink: 1;
+  min-height: 0;
+}
+.reveal li + li { margin-top: 0.22em; }
+.reveal code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: var(--tuik-soft);
+  color: var(--tuik-deep);
+  padding: 0.08em 0.35em;
+  border-radius: 6px;
+  font-size: 0.88em;
+  border: 1px solid var(--tuik-muted);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75em;
+  margin-bottom: 0.4em;
+  flex-shrink: 0;
+  padding-bottom: 0.35em;
+  border-bottom: 2px solid var(--tuik);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  flex-shrink: 0;
+}
+.brand img {
+  height: 64px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+.brand-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.06em;
+}
+.brand-meta strong {
+  font-size: 0.42em;
+  color: #0a0a0a;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.brand-meta span {
+  font-size: 0.32em;
+  color: var(--muted);
+  font-weight: 500;
+}
+.eyebrow {
+  color: var(--tuik);
+  font-size: 0.42em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 650;
+  margin: 0 0 0.2em;
+  flex-shrink: 0;
+}
+.lede {
+  font-size: 0.62em;
+  color: var(--muted);
+  max-width: 34em;
+  margin: 0.15em 0 0.35em;
+  flex-shrink: 0;
+}
+.lede strong { color: #0a0a0a; }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: 0.36em;
+  font-weight: 600;
+  color: var(--tuik);
+  background: var(--tuik-soft);
+  border: 1px solid var(--tuik-muted);
+  border-radius: 999px;
+  padding: 0.3em 0.75em;
+  white-space: nowrap;
+}
+.icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.12em;
+  flex-shrink: 0;
+}
+.icon-sm { width: 0.85em; height: 0.85em; }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55em;
+  margin-top: 0.5em;
+  align-items: stretch;
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: calc(100% - 0.5em);
+  align-content: start;
+}
+.card {
+  border: 1px solid color-mix(in srgb, var(--tuik) 18%, var(--line));
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 0.7em 0.85em;
+  font-size: 0.54em;
+  box-shadow: 0 10px 28px -18px rgba(0, 0, 0, 0.14);
+  color: #404040;
+  overflow: hidden;
+  box-sizing: border-box;
+  min-height: 0;
+}
+.card strong {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  color: #0a0a0a;
+  font-size: 1.05em;
+  margin-bottom: 0.22em;
+  font-weight: 650;
+}
+.card strong .icon {
+  color: var(--tuik);
+  width: 1.1em;
+  height: 1.1em;
+}
+
+.visual {
+  margin-top: 0.35em;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 32px -20px rgba(174, 22, 21, 0.22);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-height: var(--img-max);
+  flex: 0 1 auto;
+  min-height: 0;
+}
+.visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: var(--img-max);
+  object-fit: contain;
+  object-position: center;
+}
+.visual.compact { max-height: var(--img-compact); }
+.visual.compact img { max-height: var(--img-compact); object-fit: contain; }
+.visual.hero {
+  max-height: 32vh;
+  margin: 0.25em auto 0;
+  width: min(100%, 860px);
+}
+.visual.hero img { max-height: 32vh; object-fit: contain; }
+.visual.diagram {
+  max-height: 36vh;
+  background: var(--soft);
+}
+.visual.diagram img {
+  max-height: 36vh;
+  object-fit: contain;
+  padding: 0.35em 0.5em;
+  box-sizing: border-box;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85em;
+  align-items: center;
+  margin-top: 0.25em;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.two-col > * { min-width: 0; min-height: 0; }
+.two-col .visual {
+  margin-top: 0;
+  max-height: var(--img-compact);
+  width: 100%;
+}
+.two-col .visual img { max-height: var(--img-compact); }
+.two-col ul { font-size: 0.64em; margin-top: 0; }
+.two-col .card { font-size: 0.48em; height: auto; }
+
+.pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35em;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.55em;
+  flex-shrink: 0;
+}
+.pipe-step {
+  background: var(--tuik-soft);
+  color: var(--tuik);
+  border: 1px solid var(--tuik-muted);
+  border-radius: 999px;
+  padding: 0.32em 0.7em;
+  font-size: 0.46em;
+  font-weight: 650;
+}
+.pipe-arrow {
+  display: inline-flex;
+  align-items: center;
+  color: var(--tuik);
+  opacity: 0.55;
+}
+.pipe-arrow svg { width: 0.55em; height: 0.55em; }
+
+.warn {
+  margin-top: 0.55em;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-left: 4px solid #f59e0b;
+  border-radius: 10px;
+  padding: 0.5em 0.7em;
+  font-size: 0.48em;
+  color: #92400e;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45em;
+}
+.warn .icon { color: #d97706; width: 1.15em; height: 1.15em; margin-top: 0.05em; }
+
+.hero-center {
+  text-align: center;
+  align-items: center;
+}
+.hero-center .brand {
+  justify-content: center;
+  margin-bottom: 0.35em;
+}
+.hero-center .brand img { height: 88px; }
+.hero-center h1 { margin-top: 0.05em; font-size: 1.75em; }
+.hero-center .lede {
+  margin: 0.15em auto 0.25em;
+  font-size: 0.58em;
+}
+.hero-center .footer-note { margin-top: 0.35em; }
+.accent-bar {
+  height: 3px;
+  width: 4.5em;
+  background: var(--tuik);
+  border-radius: 999px;
+  margin: 0.15em auto 0.35em;
+  flex-shrink: 0;
+}
+.footer-note {
+  font-size: 0.38em;
+  color: var(--muted);
+  margin-top: 0.4em;
+  flex-shrink: 0;
+}
+.closing {
+  color: var(--tuik);
+  font-weight: 600;
+  margin-top: 0.5em;
+  font-size: 0.62em;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+}
+.closing .icon { width: 0.95em; height: 0.95em; }
+
+.stack-mid {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.reveal .slide-number {
+  color: #737373;
+  background: transparent;
+  font-size: 14px;
+  right: 18px;
+  bottom: 14px;
+}
+.reveal .controls { color: var(--tuik); }
+.reveal .progress {
+  color: var(--tuik);
+  height: 3px;
+}
+
+@media (max-width: 900px) {
+  .two-col, .card-grid { grid-template-columns: 1fr; }
+  .visual, .visual.compact, .visual.hero, .visual.diagram,
+  .visual img, .visual.compact img, .visual.hero img, .visual.diagram img {
+    max-height: 32vh;
+  }
+  .brand img { height: 48px; }
+  .hero-center .brand img { height: 56px; }
+}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- 0 · Title -->
+<section class="hero-center">
+  <div class="brand">
+    <img src="assets/tuik-logo.svg" alt="TÜİK logosu (eğitim kullanımı)"/>
+    <div class="brand-meta" style="text-align:left">
+      <strong>TÜİK · ALO 124 bağlamı</strong>
+      <span>Eğitim laboratuvarı — resmi ürün değil</span>
+    </div>
+  </div>
+  <p class="eyebrow">Mühendislik Laboratuvarı</p>
+  <h1>speech-to-text-lab</h1>
+  <div class="accent-bar" aria-hidden="true"></div>
+  <p class="lede">TÜİK <strong>ALO 124</strong> tarzı çağrı merkezi sesinden speech-to-text boru hattına — sentetik demo, eğitim amaçlı.</p>
+  <div class="visual hero">
+    <img src="assets/slide-hero-audio.jpg" alt="Çağrı merkezi ses ve STT kavram görseli"/>
+  </div>
+  <p class="footer-note">Sentetik / demo ses · Gerçek kişisel veri yok · Resmi istatistik veya operasyonel karar için kullanılmaz</p>
+</section>
+
+<!-- 1 · Agenda -->
+<section>
+  <div class="topbar">
+    <p class="eyebrow" style="margin:0">Gündem</p>
+    <span class="badge">
+      <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+      Eğitim oturumu
+    </span>
+  </div>
+  <h2>Bu oturumda neler var?</h2>
+  <div class="card-grid">
+    <div class="card">
+      <strong>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        01 · Bağlam
+      </strong>
+      ALO 124 kurumsal çerçevesi (TÜİK, CATI) — eğitim referansı.
+    </div>
+    <div class="card">
+      <strong>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 10v4"/><path d="M6 6v12"/><path d="M10 3v18"/><path d="M14 8v8"/><path d="M18 5v14"/><path d="M22 10v4"/></svg>
+        02 · Ses varlıkları
+      </strong>
+      Kayıtların kalite, denetim ve STT girdisi olarak değeri.
+    </div>
+    <div class="card">
+      <strong>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8.7 10.7 15.3 7.3"/><path d="M8.7 13.3 15.3 16.7"/></svg>
+        03 · Pipeline
+      </strong>
+      Ingest → preprocess → ASR → postprocess → analytics.
+    </div>
+    <div class="card">
+      <strong>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        04–05 · Gizlilik &amp; Lab
+      </strong>
+      KVKK uyarısı ve uygulamayı çalıştırma adımları.
+    </div>
+  </div>
+</section>
+
+<!-- 2 · ALO 124 -->
+<section>
+  <p class="eyebrow">01 · Bağlam</p>
+  <h2>ALO 124 nedir?</h2>
+  <p style="font-size:0.62em;color:#525252;max-width:36em;margin:0 0 0.15em;flex-shrink:0"><strong>ALO 124</strong>, Türkiye İstatistik Kurumu (TÜİK)’nun resmi çağrı merkezi hattıdır. Bu slaytlar eğitim bağlamı için özetler; kurum adına resmi açıklama değildir.</p>
+  <div class="card-grid">
+    <div class="card">
+      <strong>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Vatandaş teması
+      </strong>
+      Bilgi talepleri, yönlendirme, kurumsal iletişim.
+    </div>
+    <div class="card">
+      <strong>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="16" height="16" x="4" y="4" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>
+        Anket / CATI
+      </strong>
+      Bilgisayar destekli telefonla görüşme; CAWI/CAPI ile birlikte veri toplama.
+    </div>
+    <div class="card">
+      <strong>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        Karşılama kaydı
+      </strong>
+      Veri gizliliği / güvenlik bilgilendirmesi (Karşılama Ses Kaydı).
+    </div>
+    <div class="card">
+      <strong>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Mesai
+      </strong>
+      Tipik olarak hafta içi 09:00–18:00.
+    </div>
+  </div>
+</section>
+
+<!-- 3 · Audio assets + waveform -->
+<section>
+  <p class="eyebrow">02 · Ses varlıkları</p>
+  <h2>Ses dosyaları ne işe yarar?</h2>
+  <div class="two-col">
+    <div>
+      <ul>
+        <li><strong>Kalite:</strong> karşılama script’ine uyum</li>
+        <li><strong>Denetim:</strong> süreç ve bilgilendirme kontrolü</li>
+        <li><strong>Eğitim:</strong> ajan / operatör koçluğu</li>
+        <li><strong>STT girdisi:</strong> ASR boru hattının hammaddesi</li>
+      </ul>
+      <div class="card" style="margin-top:0.55em">
+        <strong>
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Privacy-first
+        </strong>
+        Lab’de yalnızca sentetik WAV/MP3; gerçek CATI yanıtı yoktur.
+      </div>
+    </div>
+    <div class="visual compact diagram">
+      <img src="assets/waveform.svg" alt="Dalga formu ve VAD konuşma bölgeleri diyagramı"/>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · Pipeline overview with JPG -->
+<section>
+  <p class="eyebrow">03 · Pipeline</p>
+  <h2>Uçtan uca STT boru hattı</h2>
+  <div class="stack-mid">
+    <div class="visual compact">
+      <img src="assets/slide-stt-pipeline.jpg" alt="Speech-to-text boru hattı görseli"/>
+    </div>
+    <div class="pipeline">
+      <span class="pipe-step">Ingest</span>
+      <span class="pipe-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+      <span class="pipe-step">Preprocess</span>
+      <span class="pipe-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+      <span class="pipe-step">ASR / STT</span>
+      <span class="pipe-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+      <span class="pipe-step">Postprocess</span>
+      <span class="pipe-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+      <span class="pipe-step">Analytics</span>
+    </div>
+  </div>
+  <p class="footer-note">Ölçülebilir: gecikme, hata oranı, redaksiyon kapsamı, anahtar kelime doğruluğu.</p>
+</section>
+
+<!-- 5 · Call center flow SVG -->
+<section>
+  <p class="eyebrow">03 · Pipeline</p>
+  <h2>Çağrı merkezi → STT akışı</h2>
+  <div class="stack-mid">
+    <div class="visual diagram">
+      <img src="assets/call-center-flow.svg" alt="Vatandaş çağrısından metrik üretime STT akış diyagramı"/>
+    </div>
+  </div>
+  <p class="footer-note">Lab’de bu akış sentetik örneklerle tekrarlanır; gerçek ALO 124 araması yapılmaz.</p>
+</section>
+
+<!-- 6 · Ingest & preprocess -->
+<section>
+  <p class="eyebrow">03 · Pipeline</p>
+  <h2>Ingest &amp; preprocess</h2>
+  <div class="two-col">
+    <ul>
+      <li><strong>Ingest:</strong> kayıt → depolama, metadata (süre, kanal)</li>
+      <li><strong>Resample:</strong> tipik ASR girdisi 16 kHz mono</li>
+      <li><strong>Denoise:</strong> hat gürültüsü / echo (dikkatli)</li>
+      <li><strong>VAD:</strong> konuşma / sessizlik; boşluk oranı</li>
+    </ul>
+    <div class="visual compact diagram">
+      <img src="assets/pipeline.svg" alt="Beş adımlı STT pipeline şeması"/>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · ASR stages -->
+<section>
+  <p class="eyebrow">03 · Pipeline</p>
+  <h2>ASR → postprocess → görselleştirme</h2>
+  <div class="card-grid">
+    <div class="card">
+      <strong>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        ASR / STT
+      </strong>
+      Metin + kelime zaman damgası. Lab’de Mock ASR (+ isteğe bağlı Web Speech).
+    </div>
+    <div class="card">
+      <strong>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Postprocess
+      </strong>
+      Noktalama, normalizasyon; üretimde PII redaksiyonu.
+    </div>
+    <div class="card">
+      <strong>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+        Analytics
+      </strong>
+      Süre, konuşma oranı, sessizlik, anahtar kelime (anket, gizlilik, TÜİK, randevu).
+    </div>
+    <div class="card">
+      <strong>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+        UI
+      </strong>
+      Dalga formu, transcript tablosu, metrik kartları.
+    </div>
+  </div>
+</section>
+
+<!-- 8 · Privacy with JPG -->
+<section>
+  <p class="eyebrow">04 · Gizlilik</p>
+  <h2>KVKK ve güvenlik uyarısı</h2>
+  <div class="two-col">
+    <div>
+      <ul style="font-size:0.72em">
+        <li>Gerçek çağrı kayıtları kişisel veri içerir; işleme hukuki dayanak ister.</li>
+        <li>Üretimde: erişim kontrolü, şifreleme, denetim izi, redaksiyon.</li>
+        <li>Bu lab <strong>demo / sentetik</strong> ses üretir; gerçek ALO 124 araması yoktur.</li>
+      </ul>
+      <div class="warn">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <span>Demo ≠ üretim. Lab çıktılarını operasyonel karar veya resmi istatistik olarak kullanmayın.</span>
+      </div>
+    </div>
+    <div class="visual compact">
+      <img src="assets/slide-privacy.jpg" alt="Gizlilik ve veri koruma kavram görseli"/>
+    </div>
+  </div>
+</section>
+
+<!-- 9 · How to run -->
+<section>
+  <p class="eyebrow">05 · Lab</p>
+  <h2>Projeyi nasıl çalıştırırsınız?</h2>
+  <ol style="font-size:0.68em">
+    <li><code>npm install</code></li>
+    <li><code>npm run samples</code> (ffmpeg gerekir)</li>
+    <li><code>npm run dev</code> → http://127.0.0.1:43123</li>
+    <li><code>npm run slides</code> veya <code>/slides/index.html</code></li>
+  </ol>
+  <p class="footer-note">Ücretli API anahtarı gerekmez. Mock ASR çevrimdışı çalışır.</p>
+</section>
+
+<!-- 10 · Lab tasks -->
+<section>
+  <p class="eyebrow">05 · Lab</p>
+  <h2>Uygulamada ne yapacaksınız?</h2>
+  <ul>
+    <li><code>public/samples/</code> içinden örnek seçin veya WAV/MP3 yükleyin</li>
+    <li>Dalga formunu inceleyin ve oynatın</li>
+    <li>“Transcribe et” ile Mock ASR çalıştırın</li>
+    <li>Transcript, kelime zamanlamaları, güven, süre, konuşma oranı, sessizlik ve anahtar kelime kartlarını doğrulayın</li>
+  </ul>
+</section>
+
+<!-- 11 · Summary -->
+<section>
+  <div class="topbar">
+    <p class="eyebrow" style="margin:0">Özet</p>
+    <img src="assets/tuik-logo.svg" alt="" style="height:56px;opacity:0.95"/>
+  </div>
+  <h2>Mühendis çıkarımı</h2>
+  <ul>
+    <li>ALO 124 bağlamı: iletişim + CATI veri toplama hattı (eğitim referansı)</li>
+    <li>Ses → preprocess → STT → postprocess → metrikler</li>
+    <li>Gizlilik tasarımın parçasıdır, sonradan eklenmez</li>
+    <li>Lab ile boru hattını güvenli ve tekrarlanabilir şekilde deneyin</li>
+  </ul>
+  <p class="closing">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    İyi çalışmalar — speech-to-text-lab
+  </p>
+  <p class="footer-note">TÜİK logosu eğitim amaçlı kullanılmıştır; bu proje resmi bir TÜİK ürünü veya onayı değildir.</p>
+</section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+Reveal.initialize({
+  hash: true,
+  slideNumber: 'c/t',
+  transition: 'fade',
+  transitionSpeed: 'default',
+  backgroundTransition: 'fade',
+  width: 1280,
+  height: 720,
+  margin: 0.06,
+  center: false
+});
+</script>
+</body>
+</html>
