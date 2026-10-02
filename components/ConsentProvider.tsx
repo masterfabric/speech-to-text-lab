@@ -11,7 +11,9 @@ import {
 } from "react";
 import {
   CONSENT_VERSION,
+  localDevConsentRecord,
   readConsent,
+  shouldBypassOnboardingGate,
   submitOnboardingForm,
   writeConsent,
   type ConsentRecord,
@@ -30,7 +32,8 @@ type ConsentContextValue = {
     lastName: string;
     reason: string;
   }) => void;
-  /** POST form to Web3Forms (browser) then mark approved on success. */
+  /** POST form to Web3Forms (browser) then mark approved on success.
+   *  Local/dev skips Web3Forms and marks approved immediately. */
   submitAndApprove: (
     fields: Omit<OnboardingFormInput, "locale" | "consent"> & {
       consent: boolean;
@@ -47,7 +50,15 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
+    // Local/dev: treat as already consented (in-memory only) so LabConsentGate
+    // opens the main lab without /onboarding. Production still reads localStorage.
+    if (shouldBypassOnboardingGate()) {
+      setConsent(localDevConsentRecord(locale));
+      return;
+    }
     setConsent(readConsent());
+    // Hydrate once on mount (locale only seeds the local-dev bypass record).
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
   }, []);
 
   const markApproved = useCallback(

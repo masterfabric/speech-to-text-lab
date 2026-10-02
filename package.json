@@ -16,7 +16,8 @@
     "verify:sample-catalog": "node scripts/verify-sample-catalog-row.mjs",
     "verify:nlp-opencode": "node scripts/verify-nlp-opencode-panel.mjs",
     "verify:audio-stage": "node scripts/verify-audio-stage-views.mjs",
-    "verify:upload-sentiment": "node scripts/verify-upload-sentiment-persist.mjs"
+    "verify:upload-sentiment": "node scripts/verify-upload-sentiment-persist.mjs",
+    "verify:local-onboarding-bypass": "node scripts/verify-local-onboarding-bypass.mjs"
   },
   "dependencies": {
     "jspdf": "^4.2.1",
