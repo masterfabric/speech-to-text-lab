@@ -1,8 +1,13 @@
 import type { WordTiming } from "./types";
 import { MOCK_TRANSCRIPTS, resolveSampleId } from "./constants";
+import {
+  TELEPHONY_SEGMENT_SEC,
+  buildTelephonyMockTranscript,
+  type CallSegment,
+} from "./telephony-analysis";
 
 /** Educational chunk length for long telephony uploads. */
-export const MOCK_CHUNK_SEC = 45;
+export const MOCK_CHUNK_SEC = TELEPHONY_SEGMENT_SEC;
 
 function hashSeed(input: string): number {
   let h = 2166136261;
@@ -23,38 +28,22 @@ function seededRandom(seed: number): () => number {
 
 /**
  * Expand / chunk mock transcript text for long unknown uploads so the lab
- * still produces a non-empty transcript + skorlama after process.
+ * still produces a substantive transcript + skorlama after process.
+ * Returns both flat text and timed educational segments.
  */
 export function expandTranscriptForDuration(
   baseText: string,
   durationSec: number,
   sampleId: string
-): string {
-  const text = (baseText || "").trim();
-  if (!text) {
-    return MOCK_TRANSCRIPTS.default.text;
+): { text: string; segments: CallSegment[] | null } {
+  // Catalog samples keep their fixed transcript (no telephony segmentation).
+  if (sampleId !== "default") {
+    const text = (baseText || "").trim() || MOCK_TRANSCRIPTS.default.text;
+    return { text, segments: null };
   }
-  // Catalog samples keep their fixed transcript.
-  if (sampleId !== "default") return text;
 
-  const duration = Math.max(durationSec, 1);
-  if (duration <= MOCK_CHUNK_SEC * 1.25) return text;
-
-  const chunkCount = Math.min(12, Math.max(2, Math.ceil(duration / MOCK_CHUNK_SEC)));
-  const bridge = [
-    "Bir sonraki bölümde numara tekrarlandı.",
-    "Görüşme devam ediyor, kısa bir bekleme oluştu.",
-    "Operatör doğrulama adımlarını özetledi.",
-    "Çağrı sonunda bilgilendirme cümlesi okundu.",
-  ];
-  const parts: string[] = [];
-  for (let i = 0; i < chunkCount; i++) {
-    parts.push(text);
-    if (i < chunkCount - 1) {
-      parts.push(bridge[i % bridge.length]);
-    }
-  }
-  return parts.join(" ");
+  const built = buildTelephonyMockTranscript(durationSec);
+  return { text: built.text, segments: built.segments };
 }
 
 function buildWordTimings(
@@ -119,7 +108,7 @@ function buildWordTimings(
 /**
  * Deterministic offline mock ASR for demos.
  * Produces Turkish transcript + synthetic word timings and confidence scores.
- * Unknown / telephony uploads never yield an empty transcript.
+ * Unknown / telephony uploads never yield an empty or generic-only stub.
  */
 export function runMockAsr(options: {
   fileName: string;
@@ -130,12 +119,22 @@ export function runMockAsr(options: {
   words: WordTiming[];
   confidence: number;
   language: string;
+  segments: CallSegment[] | null;
 } {
   const sampleId = resolveSampleId(options.fileName);
   const template = MOCK_TRANSCRIPTS[sampleId] ?? MOCK_TRANSCRIPTS.default;
   const duration = Math.max(options.durationSec, 1);
-  const text = expandTranscriptForDuration(template.text, duration, sampleId);
-  const wordsRaw = text.split(/\s+/).filter(Boolean);
+  const expanded = expandTranscriptForDuration(
+    template.text,
+    duration,
+    sampleId
+  );
+  const text = expanded.text;
+  // Strip [timestamp · label] markers from word timing tokens for cleaner metrics.
+  const wordsRaw = text
+    .replace(/\[[^\]]+\]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
   const words = buildWordTimings(wordsRaw, duration, options.fileName);
 
   const confidence =
@@ -148,6 +147,7 @@ export function runMockAsr(options: {
     words,
     confidence: Number(confidence.toFixed(3)),
     language: template.language || "tr-TR",
+    segments: expanded.segments,
   };
 }
 

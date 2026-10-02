@@ -383,13 +383,16 @@ export const MOCK_TRANSCRIPTS: Record<
   },
   /**
    * Unknown / externally uploaded demo files (no SAMPLE_CATALOG match),
-   * including long 8 kHz telephony MP3s. Neutral call-center style text so
-   * offline sentiment always yields polarity (nötr) + numeric score — never
-   * an empty / "missing transcript" stub that blanks the skorlama UI.
+   * including long 8 kHz telephony MP3s. Lexicon-rich educational call-center
+   * text so offline sentiment + NLP yield usable polarity/summary — never an
+   * empty stub. Long uploads are expanded into timed phases in mock-stt /
+   * telephony-analysis (demo-safe; not real ALO 124 PII).
    */
   default: {
     text:
-      "Merhaba, görüşmeye başlıyoruz. Konuşma kayda alınmaktadır. Bugün yalnızca adres ve numara doğrulaması yapılacaktır. İşlem sıraya alınmıştır. Bilgilendirme tamamlandı.",
+      "Merhaba, eğitim amaçlı görüşmeye başlıyoruz. Konuşma kayda alınmaktadır. " +
+      "Bugün yalnızca örnek adres ve numara doğrulaması yapılacaktır. " +
+      "Gizlilik bilgilendirmesi tamam; işlem sıraya alınmıştır. Teşekkürler, iyi günler.",
     language: "tr-TR",
   },
 };

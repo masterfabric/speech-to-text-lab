@@ -211,6 +211,76 @@ export function ReportPanel({ result, loading }: ReportPanelProps) {
           </p>
         </section>
 
+        {result.callAnalysis ? (
+          <section
+            className="rounded-xl border border-tuik/25 bg-tuik-soft/40 p-4"
+            data-testid="report-call-analysis"
+          >
+            <SectionTitle
+              icon={<Clock3 className="h-3.5 w-3.5" aria-hidden />}
+              title={t("panel.callAnalysis")}
+            />
+            <p
+              className="mt-2 text-sm leading-relaxed text-slate-800"
+              data-testid="report-call-summary"
+            >
+              {result.callAnalysis.summaryTr}
+            </p>
+            {result.callAnalysis.keyPhrases.length ? (
+              <div className="mt-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-tuik">
+                  {t("panel.keyPhrases")}
+                </p>
+                <ul
+                  className="mt-1.5 flex flex-wrap gap-1.5"
+                  data-testid="report-key-phrases"
+                >
+                  {result.callAnalysis.keyPhrases.map((phrase) => (
+                    <li
+                      key={phrase}
+                      className="rounded-md bg-white px-2 py-0.5 text-xs text-slate-700 ring-1 ring-tuik/20"
+                    >
+                      {phrase}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            {result.callAnalysis.isLongForm &&
+            result.callAnalysis.segments.length > 1 ? (
+              <div className="mt-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-tuik">
+                  {t("panel.callSegments")}
+                </p>
+                <ol
+                  className="mt-1.5 max-h-56 space-y-1.5 overflow-auto text-xs text-slate-700"
+                  data-testid="report-call-segments"
+                >
+                  {result.callAnalysis.segments.map((seg) => (
+                    <li
+                      key={seg.index}
+                      className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5"
+                    >
+                      <span className="font-semibold text-tuik-dim">
+                        {formatDuration(seg.startSec)}–
+                        {formatDuration(seg.endSec)}
+                      </span>
+                      <span className="mx-1.5 text-slate-400">·</span>
+                      <span className="font-medium">{seg.label}</span>
+                      <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-slate-500">
+                        {seg.text}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ) : null}
+            <p className="mt-3 text-[11px] text-slate-500">
+              {t("panel.callDisclaimer")}
+            </p>
+          </section>
+        ) : null}
+
         <div className="grid gap-3 md:grid-cols-2">
           <section className="rounded-xl border border-slate-200 bg-white p-4 text-sm">
             <SectionTitle

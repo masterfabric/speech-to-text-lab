@@ -1,6 +1,8 @@
+import type { CallAnalysis } from "./telephony-analysis";
 import type { SentimentResult } from "./sentiment";
 import type { WerMetrics } from "./wer";
 
+export type { CallAnalysis, CallSegment } from "./telephony-analysis";
 
 export type PipelineStageId =
   | "vad"
@@ -70,6 +72,11 @@ export type LabResult = {
   processedAt: string;
   /** Present when STT mode emits educational pipeline stages. */
   pipelineStages?: PipelineStage[];
+  /**
+   * Multi-minute / telephony call breakdown: duration segments, key phrases,
+   * local NLP summary. Always set for unknown long uploads; optional otherwise.
+   */
+  callAnalysis?: CallAnalysis;
 };
 
 export type SampleMeta = {

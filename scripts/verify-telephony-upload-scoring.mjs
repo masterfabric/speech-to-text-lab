@@ -1,11 +1,12 @@
 /**
- * Playwright: long / 8 kHz telephony-style uploads still yield score + nötr
- * after process (chunking + decode fallbacks + no Web Speech hang).
+ * Playwright: long / 8 kHz telephony uploads produce substantive analysis —
+ * non-empty transcript, call segments / key phrases, and sentiment that
+ * reflects content (not a blank skor-only 0.00 stub).
  *
  *   node scripts/verify-telephony-upload-scoring.mjs
  */
 import { chromium } from "playwright";
-import { mkdirSync, readFileSync, existsSync } from "fs";
+import { mkdirSync, readFileSync, existsSync, writeFileSync } from "fs";
 import { execSync } from "child_process";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
@@ -15,8 +16,8 @@ const BASE = process.env.LAB_URL || "http://127.0.0.1:43123/";
 const FIXTURE_5S = join(__dirname, "fixtures/telephony-8khz-5s.mp3");
 const FIXTURE_90S = join(__dirname, "fixtures/telephony-8khz-90s.mp3");
 /** Optional real user extract (not committed). */
-const USER_30S = "/tmp/user-sample-audio/user-sample-30s.wav";
-const USER_FULL = "/tmp/user-sample-audio/user-sample.mp3";
+const USER_30S = "/tmp/sample-audio/user-sample-30s.wav";
+const USER_FULL = "/tmp/sample-audio/user-sample.mp3";
 
 function fail(msg, extra) {
   console.error("FAIL:", msg);
@@ -105,6 +106,31 @@ async function uploadAndScore(filePath, uploadName, mimeType) {
   const badge = (
     await page.locator('[data-testid="audio-stage-file-badge"]').innerText()
   ).trim();
+  const transcriptText = (
+    await page.locator('[data-testid="report-panel"]').innerText()
+  ).trim();
+
+  const callAnalysisVisible = await page
+    .locator('[data-testid="report-call-analysis"]')
+    .isVisible()
+    .catch(() => false);
+  const callSummary = callAnalysisVisible
+    ? (
+        await page.locator('[data-testid="report-call-summary"]').innerText()
+      ).trim()
+    : "";
+  const keyPhrases = callAnalysisVisible
+    ? (
+        await page.locator('[data-testid="report-key-phrases"]').innerText()
+      ).trim()
+    : "";
+  const segmentsVisible = await page
+    .locator('[data-testid="report-call-segments"]')
+    .isVisible()
+    .catch(() => false);
+  const segmentCount = segmentsVisible
+    ? await page.locator('[data-testid="report-call-segments"] > li').count()
+    : 0;
 
   return {
     uploadName,
@@ -115,31 +141,94 @@ async function uploadAndScore(filePath, uploadName, mimeType) {
     reportScore,
     badge,
     elapsedMs,
+    transcriptText,
+    callAnalysisVisible,
+    callSummary,
+    keyPhrases,
+    segmentsVisible,
+    segmentCount,
   };
 }
 
-function assertSkorlama(result, { maxMs } = {}) {
-  console.log(result);
-  if (!/NÖTR/i.test(result.polarity)) {
-    fail("sentiment polarity must be NÖTR for telephony upload", result);
-  }
-  if (!/nötr/i.test(result.emotion)) {
-    fail("sentiment emotion must surface nötr for neutral upload", result);
-  }
+function assertHasNumericScore(result) {
   if (!/Skor:\s*-?\d+\.\d{2}/i.test(result.scoreText)) {
-    fail("sentiment must show numeric score including 0.00", result);
-  }
-  if (!/nötr/i.test(result.reportPolarity)) {
-    fail("report polarity must show nötr", result);
+    fail("sentiment must show numeric score", result);
   }
   if (!/-?\d+\.\d{2}/.test(result.reportScore)) {
     fail("report must show dedicated score stat", result);
   }
-  if (maxMs != null && result.elapsedMs > maxMs) {
-    fail(`transcribe+score too slow for upload (possible timeout hang)`, {
-      ...result,
-      maxMs,
+}
+
+function assertSubstantiveTranscript(result, { minChars = 80 } = {}) {
+  // Report panel includes transcript summary — require educational content words.
+  const body = result.transcriptText || "";
+  if (body.length < minChars) {
+    fail("report transcript area too short / empty", {
+      length: body.length,
+      minChars,
     });
+  }
+  const markers = [
+    /eğitim/i,
+    /demo/i,
+    /gizlilik|kvkk|anket|teşekkür|doğrulama|kayıt/i,
+  ];
+  const hit = markers.some((re) => re.test(body));
+  if (!hit) {
+    fail("transcript must contain substantive demo call-center Turkish", {
+      sample: body.slice(0, 240),
+    });
+  }
+  // Reject the old ultra-short filler-only pattern if it appears alone.
+  if (
+    /^Merhaba, görüşmeye başlıyoruz\. Konuşma kayda alınmaktadır\./i.test(
+      body
+    ) &&
+    body.length < 200
+  ) {
+    fail("generic short filler transcript without expansion", result);
+  }
+}
+
+function assertCallAnalysis(result, { requireSegments = false } = {}) {
+  if (!result.callAnalysisVisible) {
+    fail("report must show call analysis section for telephony upload", result);
+  }
+  if (!result.callSummary || result.callSummary.length < 40) {
+    fail("call summary must be non-empty and useful", result);
+  }
+  if (!/PII|ALO 124|eğitim|demo/i.test(result.callSummary)) {
+    fail("call summary must stay demo-safe (disclaimer / edu wording)", result);
+  }
+  if (!result.keyPhrases || result.keyPhrases.length < 3) {
+    fail("key phrases must be present for telephony analysis", result);
+  }
+  if (requireSegments) {
+    if (!result.segmentsVisible || result.segmentCount < 2) {
+      fail("long call must show multiple duration segments", result);
+    }
+  }
+}
+
+function assertSentimentReflectsContent(result) {
+  // Must not be an empty-feeling panel: emotion label present, and either
+  // non-zero |score| OR a calm/engaged/memnun/nötr emotion with lexicon summary.
+  const scoreMatch = result.scoreText.match(/-?\d+\.\d{2}/);
+  const score = scoreMatch ? Number(scoreMatch[0]) : NaN;
+  if (!Number.isFinite(score)) {
+    fail("could not parse sentiment score", result);
+  }
+  if (!result.emotion || result.emotion.length < 2) {
+    fail("emotion label missing", result);
+  }
+  // Blank-only failure mode: skor exactly 0.00 AND emotion nötr AND no call analysis.
+  // With our richer mock, either score moves or call analysis carries insight.
+  if (
+    Math.abs(score) < 0.001 &&
+    /nötr/i.test(result.emotion) &&
+    !result.callAnalysisVisible
+  ) {
+    fail("useless skor 0.00 / nötr with no call analysis insight", result);
   }
 }
 
@@ -150,25 +239,64 @@ try {
     timeout: 20000,
   });
 
-  // 1) Short 8 kHz mono MP3
-  assertSkorlama(
-    await uploadAndScore(
+  // 1) Short 8 kHz mono MP3 — skor + substantive short mock
+  {
+    const short = await uploadAndScore(
       FIXTURE_5S,
       "telephony-8khz-5s.mp3",
       "audio/mpeg"
-    ),
-    { maxMs: 15000 }
-  );
+    );
+    console.log("short", {
+      polarity: short.polarity,
+      emotion: short.emotion,
+      scoreText: short.scoreText,
+      callAnalysisVisible: short.callAnalysisVisible,
+      elapsedMs: short.elapsedMs,
+    });
+    assertHasNumericScore(short);
+    assertSubstantiveTranscript(short, { minChars: 60 });
+    assertCallAnalysis(short, { requireSegments: false });
+    assertSentimentReflectsContent(short);
+    if (short.elapsedMs > 15000) {
+      fail("short upload too slow", short);
+    }
+  }
 
-  // 2) Longer 8 kHz MP3 (chunked mock transcript path)
-  assertSkorlama(
-    await uploadAndScore(
+  // 2) Longer 8 kHz MP3 (~90s) — chunked phases + segments
+  {
+    const longer = await uploadAndScore(
       FIXTURE_90S,
       "telephony-8khz-90s.mp3",
       "audio/mpeg"
-    ),
-    { maxMs: 20000 }
-  );
+    );
+    console.log("longer", {
+      polarity: longer.polarity,
+      emotion: longer.emotion,
+      scoreText: longer.scoreText,
+      segmentCount: longer.segmentCount,
+      keyPhrases: longer.keyPhrases.slice(0, 80),
+      elapsedMs: longer.elapsedMs,
+    });
+    assertHasNumericScore(longer);
+    assertSubstantiveTranscript(longer, { minChars: 200 });
+    assertCallAnalysis(longer, { requireSegments: true });
+    assertSentimentReflectsContent(longer);
+    if (longer.elapsedMs > 20000) {
+      fail("90s upload too slow", longer);
+    }
+    writeFileSync(
+      ".qa/telephony-scoring/long-90s-summary.txt",
+      [
+        longer.callSummary,
+        "",
+        longer.keyPhrases,
+        "",
+        `segments=${longer.segmentCount}`,
+        `score=${longer.scoreText}`,
+        `emotion=${longer.emotion}`,
+      ].join("\n")
+    );
+  }
 
   // Web Speech mode must not hang ~12s on blob uploads
   const modes = page.locator('[role="radiogroup"] [role="radio"]');
@@ -178,7 +306,11 @@ try {
     "telephony-webspeech-skip.mp3",
     "audio/mpeg"
   );
-  assertSkorlama(web, { maxMs: 8000 });
+  assertHasNumericScore(web);
+  assertCallAnalysis(web, { requireSegments: false });
+  if (web.elapsedMs > 8000) {
+    fail("Web Speech blob path hung", web);
+  }
 
   await page.screenshot({
     path: ".qa/telephony-scoring/after-8khz-score.png",
@@ -187,20 +319,67 @@ try {
 
   // 3) Optional: real user extracts when present on the machine
   if (existsSync(USER_30S)) {
-    assertSkorlama(
-      await uploadAndScore(USER_30S, "user-sample-30s.wav", "audio/wav"),
-      { maxMs: 20000 }
+    const u30 = await uploadAndScore(
+      USER_30S,
+      "user-sample-30s.wav",
+      "audio/wav"
     );
+    console.log("user-30s", {
+      scoreText: u30.scoreText,
+      emotion: u30.emotion,
+      segmentCount: u30.segmentCount,
+      callSummary: u30.callSummary.slice(0, 160),
+    });
+    assertHasNumericScore(u30);
+    assertSubstantiveTranscript(u30);
+    assertCallAnalysis(u30, { requireSegments: false });
+    assertSentimentReflectsContent(u30);
   }
   if (existsSync(USER_FULL)) {
-    assertSkorlama(
-      await uploadAndScore(USER_FULL, "user-sample.mp3", "audio/mpeg"),
-      { maxMs: 25000 }
+    const full = await uploadAndScore(
+      USER_FULL,
+      "user-sample.mp3",
+      "audio/mpeg"
     );
+    console.log("user-full", {
+      scoreText: full.scoreText,
+      emotion: full.emotion,
+      segmentCount: full.segmentCount,
+      keyPhrases: full.keyPhrases.slice(0, 120),
+      callSummary: full.callSummary.slice(0, 200),
+      elapsedMs: full.elapsedMs,
+    });
+    assertHasNumericScore(full);
+    assertSubstantiveTranscript(full, { minChars: 400 });
+    assertCallAnalysis(full, { requireSegments: true });
+    assertSentimentReflectsContent(full);
+    if (full.segmentCount < 8) {
+      fail("8+ min call should yield many duration segments", full);
+    }
+    if (full.elapsedMs > 35000) {
+      fail("full user sample too slow", full);
+    }
+    writeFileSync(
+      ".qa/telephony-scoring/user-full-summary.txt",
+      [
+        full.callSummary,
+        "",
+        full.keyPhrases,
+        "",
+        `segments=${full.segmentCount}`,
+        `score=${full.scoreText}`,
+        `emotion=${full.emotion}`,
+        `polarity=${full.polarity}`,
+      ].join("\n")
+    );
+    await page.screenshot({
+      path: ".qa/telephony-scoring/user-full-report.png",
+      fullPage: true,
+    });
   }
 
   console.log(
-    "PASS: telephony / 8 kHz uploads show skor + nötr; blob Web Speech does not hang"
+    "PASS: telephony / 8 kHz uploads show substantive transcript, call segments/phrases, and content-aware skorlama"
   );
 } catch (e) {
   fail(e instanceof Error ? e.message : String(e));

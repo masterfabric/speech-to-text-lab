@@ -60,6 +60,17 @@ const LEXICON: Record<
   evet: { weight: 0.25, category: "calm" },
   lütfen: { weight: 0.3, category: "calm" },
   rica: { weight: 0.35, category: "calm" },
+  "kolay gelsin": { weight: 0.55, category: "positive" },
+  hoşgeldiniz: { weight: 0.7, category: "positive" },
+  başarılı: { weight: 0.65, category: "positive" },
+  çözüm: { weight: 0.55, category: "engaged" },
+  yönlendirme: { weight: 0.35, category: "engaged" },
+  bilgilendirme: { weight: 0.25, category: "calm" },
+  doğrulama: { weight: 0.25, category: "calm" },
+  güncellendi: { weight: 0.3, category: "calm" },
+  eğitim: { weight: 0.15, category: "calm" },
+  demo: { weight: 0.1, category: "calm" },
+  sentetik: { weight: 0.1, category: "calm" },
 
   // sakin / resmi
   bilgi: { weight: 0.15, category: "calm" },
@@ -68,17 +79,25 @@ const LEXICON: Record<
   anket: { weight: 0.2, category: "engaged" },
   gizlilik: { weight: 0.25, category: "calm" },
   randevu: { weight: 0.2, category: "engaged" },
+  istatistik: { weight: 0.2, category: "engaged" },
+  veri: { weight: 0.15, category: "engaged" },
+  adres: { weight: 0.15, category: "calm" },
+  onay: { weight: 0.2, category: "calm" },
+  kvkk: { weight: 0.25, category: "calm" },
 
   // gergin / olumsuz
   sorun: { weight: -0.55, category: "tense" },
   problem: { weight: -0.6, category: "tense" },
   şikayet: { weight: -0.75, category: "tense" },
   bekletme: { weight: -0.5, category: "tense" },
+  bekletiyorum: { weight: -0.35, category: "tense" },
   gecikme: { weight: -0.55, category: "tense" },
   hata: { weight: -0.65, category: "tense" },
   yanlış: { weight: -0.6, category: "tense" },
   olmuyor: { weight: -0.7, category: "tense" },
   bağlanamıyorum: { weight: -0.75, category: "tense" },
+  anlaşılmayan: { weight: -0.45, category: "tense" },
+  erişim: { weight: -0.25, category: "tense" },
   anlamadım: { weight: -0.4, category: "tense" },
   hayır: { weight: -0.35, category: "tense" },
   istemiyorum: { weight: -0.7, category: "tense" },
@@ -196,11 +215,21 @@ export function analyzeSentiment(text: string): SentimentResult {
     }
   });
 
-  // Align emotion with polarity when scores are flat.
-  // Always surface explicit «nötr» when polarity is nötr (upload skorlama UX).
+  // When polarity is nötr but lexicon shows calm/engaged speech, keep that
+  // emotion so skorlama is not a blank «nötr 0.00» with no insight.
   if (label === "nötr") {
-    emotion = "nötr";
-    emotionScores.nötr = Math.max(emotionScores.nötr, best, 0.35);
+    const calmish: EmotionLabel[] = ["sakin", "ilgili", "memnun"];
+    const calmBest = calmish.reduce<{ k: EmotionLabel; v: number }>(
+      (acc, k) => (emotionScores[k] > acc.v ? { k, v: emotionScores[k] } : acc),
+      { k: "nötr", v: 0 }
+    );
+    if (hits.length > 0 && calmBest.v >= 0.35 && calmBest.v >= emotionScores.nötr) {
+      emotion = calmBest.k;
+      emotionScores.nötr = Math.max(emotionScores.nötr, 0.2);
+    } else {
+      emotion = "nötr";
+      emotionScores.nötr = Math.max(emotionScores.nötr, best, 0.35);
+    }
   } else if (best < 0.2) {
     if (label === "olumlu") emotion = "memnun";
     else if (label === "olumsuz") emotion = "gergin";

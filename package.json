@@ -18,6 +18,7 @@
     "verify:audio-stage": "node scripts/verify-audio-stage-views.mjs",
     "verify:upload-sentiment": "node scripts/verify-upload-sentiment-persist.mjs",
     "verify:telephony-scoring": "node scripts/verify-telephony-upload-scoring.mjs",
+    "verify:telephony-long-analysis": "npx tsx scripts/verify-telephony-long-analysis.mjs",
     "verify:local-onboarding-bypass": "node scripts/verify-local-onboarding-bypass.mjs",
     "verify:local-submit-unit": "NODE_ENV=development npx tsx scripts/verify-local-submit-unit.mjs"
   },
