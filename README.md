@@ -92,12 +92,12 @@ Consent is stored under `stt-lab-consent-v1`. Locale under `stt-lab-locale-v1` (
 1. **Splash** under the TÜİK logo — feature list + ready state  
 2. **Short tour** — how to use the lab  
 3. **Form + KVKK** — required fields: **first name**, **last name**, **why you use the lab**, **consent checkbox**  
-4. Submit via **Web3Forms** (`POST https://api.web3forms.com/submit`) through the Next.js route `POST /api/onboarding`, which injects `WEB3FORMS_ACCESS_KEY` server-side (do not commit `.env.local`)  
+4. Submit via **Web3Forms** from the **browser** (`POST https://api.web3forms.com/submit`) using `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` (domain-restricted public key; free plan does not allow server-IP submit)  
 5. On success: write localStorage consent, show **Approved** badge, continue to the main lab  
 
 ```bash
 cp .env.example .env.local
-# set WEB3FORMS_ACCESS_KEY=...
+# set NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY=...
 ```
 
 ## OpenCode (optional)
@@ -117,7 +117,7 @@ The **NLP / OpenCode** tab can enrich analysis via a **local** OpenCode desktop 
 - Demo audio in `public/samples/` is synthetic or openly licensed material for teaching.
 - First visit requires acknowledging KVKK-oriented **correct use** and local-only persistence of consent.
 - In production environments, follow **KVKK** and institutional policies.
-- Onboarding profile fields are submitted through **Web3Forms** via `app/api/onboarding/route.ts` using `WEB3FORMS_ACCESS_KEY` (see `.env.example`).
+- Onboarding profile fields are submitted from the browser to **Web3Forms** using `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` (see `.env.example`).
 - OpenCode CLI (if installed) runs on your machine; review outputs before sharing.
 
 ## Quick start

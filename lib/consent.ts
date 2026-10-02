@@ -1,10 +1,12 @@
 /**
  * Onboarding / KVKK consent persistence (localStorage).
- * Remote submit goes through /api/onboarding → Web3Forms (server-side access_key).
+ * Remote submit goes from the browser → Web3Forms (public access_key).
  */
 
 export const CONSENT_STORAGE_KEY = "stt-lab-consent-v1";
 export const CONSENT_VERSION = 1 as const;
+
+const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
 
 export type ConsentRecord = {
   version: typeof CONSENT_VERSION;
@@ -68,27 +70,82 @@ export type OnboardingSubmitResult =
   | { ok: true }
   | { ok: false; error: string };
 
+function asNonEmptyString(value: string, max: number): string | null {
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.length > max) return null;
+  return trimmed;
+}
+
 /**
- * Submit onboarding via our Next.js API route, which POSTs to Web3Forms
- * with WEB3FORMS_ACCESS_KEY (server-only). Do not put the key in client code.
+ * Submit onboarding from the browser directly to Web3Forms.
+ * Free plan requires client-side POST (server IPs need Pro).
+ * Uses NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY (domain-restricted public key).
  */
 export async function submitOnboardingForm(
   input: OnboardingFormInput
 ): Promise<OnboardingSubmitResult> {
+  const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY?.trim();
+  if (!accessKey) {
+    return {
+      ok: false,
+      error:
+        "NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY yapılandırılmamış (.env.local / Vercel).",
+    };
+  }
+
+  const firstName = asNonEmptyString(input.firstName, 120);
+  const lastName = asNonEmptyString(input.lastName, 120);
+  const reason = asNonEmptyString(input.reason, 4000);
+  const locale = asNonEmptyString(input.locale ?? "tr", 16) ?? "tr";
+
+  if (!firstName || !lastName || !reason) {
+    return {
+      ok: false,
+      error: "firstName, lastName ve reason zorunludur.",
+    };
+  }
+  if (!input.consent) {
+    return {
+      ok: false,
+      error: "KVKK / yerel veri onayı zorunludur.",
+    };
+  }
+
+  const payload = {
+    access_key: accessKey,
+    subject: "speech-to-text-lab onboarding",
+    from_name: "speech-to-text-lab",
+    name: `${firstName} ${lastName}`,
+    first_name: firstName,
+    last_name: lastName,
+    message: reason,
+    reason,
+    kvkk_consent: "yes",
+    locale,
+    botcheck: false,
+  };
+
   try {
-    const res = await fetch("/api/onboarding", {
+    const res = await fetch(WEB3FORMS_ENDPOINT, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(payload),
     });
     const data = (await res.json().catch(() => ({}))) as {
       success?: boolean;
       message?: string;
+      body?: { message?: string };
     };
-    if (!res.ok || !data.success) {
+    if (!res.ok || data.success === false) {
       return {
         ok: false,
-        error: data.message || `Submit failed (${res.status})`,
+        error:
+          data.message ||
+          data.body?.message ||
+          `Submit failed (${res.status})`,
       };
     }
     return { ok: true };
