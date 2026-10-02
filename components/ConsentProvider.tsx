@@ -30,7 +30,7 @@ type ConsentContextValue = {
     lastName: string;
     reason: string;
   }) => void;
-  /** POST form via /api/onboarding then mark approved on success. */
+  /** POST form to Web3Forms (browser) then mark approved on success. */
   submitAndApprove: (
     fields: Omit<OnboardingFormInput, "locale" | "consent"> & {
       consent: boolean;
