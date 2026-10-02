@@ -1,12 +1,21 @@
 /**
  * Playwright smoke: NLP / OpenCode tab runs on SAMPLE_CATALOG + MOCK_TRANSCRIPTS
- * without requiring prior Tek dosya STT.
+ * without requiring prior Tek dosya STT, and accepts external audio upload for
+ * the same STT → sentiment → browser NLP flow.
  * Run (dev server on 43123):
  *   node scripts/verify-nlp-opencode-panel.mjs
  */
 import { chromium } from "playwright";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const BASE = process.env.LAB_URL || "http://127.0.0.1:43123/";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(__dirname, "..");
+const EXTERNAL_WAV = path.join(
+  ROOT,
+  "public/samples/cv-tr-baska-biri.wav"
+);
 
 function fail(msg, extra) {
   console.error("FAIL:", msg);
@@ -35,6 +44,12 @@ try {
   // Sample catalog must be present on the NLP tab (no Tek dosya required)
   const catalog = panel.locator('[data-testid="sample-catalog-row"]');
   await catalog.waitFor({ state: "visible", timeout: 10000 });
+
+  // External upload drop zone on the 3rd tab
+  const uploadZone = page.locator('[data-testid="nlp-external-upload"]');
+  await uploadZone.waitFor({ state: "visible", timeout: 5000 });
+  const nlpUploader = page.locator('[data-testid="nlp-audio-uploader"]');
+  await nlpUploader.waitFor({ state: "visible", timeout: 5000 });
 
   // Wait for MOCK_TRANSCRIPTS-backed sample source (auto-select first catalog item)
   const sampleSource = page.locator('[data-testid="nlp-source-sample"]');
@@ -107,6 +122,11 @@ try {
     .locator('[data-testid="nlp-browser-result"]')
     .waitFor({ state: "visible", timeout: 20000 });
 
+  // Sentiment panel should surface polarity from LabResult
+  await page
+    .locator('[data-testid="sentiment-panel"]')
+    .waitFor({ state: "visible", timeout: 10000 });
+
   const schemaPreview = page.locator('[data-testid="nlp-schema-preview"]');
   const details = page.locator("details").filter({ has: schemaPreview });
   if (await details.count()) {
@@ -138,6 +158,39 @@ try {
   if (typeof status.json.model !== "string" || !status.json.model.includes("muse-spark-1.3")) {
     fail("status.model missing Muse Spark 1.3 id", status.json);
   }
+
+  // --- External audio upload on NLP tab ---
+  const fileInput = nlpUploader.locator('input[type="file"]');
+  await fileInput.setInputFiles(EXTERNAL_WAV);
+  const uploadSource = page.locator('[data-testid="nlp-source-upload"]');
+  await uploadSource.waitFor({ state: "visible", timeout: 20000 });
+  const uploadBanner = await uploadSource.innerText();
+  if (!/cv-tr-baska-biri\.wav/i.test(uploadBanner)) {
+    fail("upload source banner missing file name", uploadBanner);
+  }
+  if (!/harici|external|upload/i.test(uploadBanner)) {
+    fail("upload source banner missing external-upload cue", uploadBanner);
+  }
+  await preview.waitFor({ state: "visible", timeout: 5000 });
+  // Auto browser NLP after external STT
+  await page
+    .locator('[data-testid="nlp-browser-result"]')
+    .waitFor({ state: "visible", timeout: 15000 });
+  await page
+    .locator('[data-testid="sentiment-panel"]')
+    .waitFor({ state: "visible", timeout: 10000 });
+  const sentimentScore = page.locator('[data-testid="sentiment-score"]');
+  await sentimentScore.waitFor({ state: "visible", timeout: 5000 });
+  console.log("external audio upload → STT → sentiment + browser NLP: ok");
+
+  // Run button still works for OpenCode / refresh after upload
+  if (await runBtn.isDisabled()) {
+    fail("nlp-run-button disabled after external upload");
+  }
+  await runBtn.click();
+  await page
+    .locator('[data-testid="nlp-browser-result"]')
+    .waitFor({ state: "visible", timeout: 20000 });
 
 
   // --- OpenCode live stream (when CLI available) ---
@@ -289,7 +342,9 @@ try {
   if (!ls.ok) fail("localStorage archives missing/empty", ls);
   console.log("localStorage archives:", ls.count);
 
-  console.log("PASS: NLP / OpenCode panel works with SAMPLE_CATALOG sample (no Tek dosya STT)");
+  console.log(
+    "PASS: NLP / OpenCode panel works with SAMPLE_CATALOG + external audio upload"
+  );
 } finally {
   await browser.close();
 }

@@ -24,14 +24,18 @@ import {
   UserRound,
   Wand2,
 } from "lucide-react";
+import { AudioUploader } from "@/components/AudioUploader";
 import { SampleCatalogRow } from "@/components/SampleCatalogRow";
 import { OpenCodeInstallAccordion } from "@/components/OpenCodeInstallAccordion";
+import { SentimentPanel } from "@/components/SentimentPanel";
+import { useLocale } from "@/components/LocaleProvider";
 import {
   INTENT_LABELS_TR,
   analyzeBrowserNlp,
   type BrowserNlpResult,
 } from "@/lib/browser-nlp";
 import { SAMPLE_CATALOG } from "@/lib/constants";
+import { decodeAudioFile } from "@/lib/audio-utils";
 import {
   OPENCODE_FALLBACK_MODELS,
   OPENCODE_MODEL_ID,
@@ -59,7 +63,7 @@ import {
   type ReportAgentSection,
   type ReportDocumentV1,
 } from "@/lib/report-schema";
-import { labResultFromSampleFileName } from "@/lib/stt-pipeline";
+import { labResultFromSampleFileName, runLabPipeline } from "@/lib/stt-pipeline";
 import type { LabResult } from "@/lib/types";
 
 type NlpOpenCodePanelProps = {
@@ -137,6 +141,7 @@ function ToggleRow(props: {
 }
 
 export function NlpOpenCodePanel({ labResult }: NlpOpenCodePanelProps) {
+  const { t } = useLocale();
   const [browserNlpOn, setBrowserNlpOn] = useState(true);
   const [openCodeOn, setOpenCodeOn] = useState(false);
   const [nlp, setNlp] = useState<BrowserNlpResult | null>(null);
@@ -157,6 +162,9 @@ export function NlpOpenCodePanel({ labResult }: NlpOpenCodePanelProps) {
   );
   const [sampleResult, setSampleResult] = useState<LabResult | null>(null);
   const [sampleLoading, setSampleLoading] = useState(false);
+  /** LabResult from external audio dropped/picked on this NLP tab. */
+  const [uploadResult, setUploadResult] = useState<LabResult | null>(null);
+  const [uploadLoading, setUploadLoading] = useState(false);
   const [archives, setArchives] = useState<ArchivedCase[]>(() =>
     typeof window !== "undefined" ? listArchivedCases() : []
   );
@@ -215,9 +223,7 @@ export function NlpOpenCodePanel({ labResult }: NlpOpenCodePanelProps) {
     }
   }, []);
 
-  const loadSampleResult = useCallback(async (fileName: string) => {
-    setSampleLoading(true);
-    setError(null);
+  const clearAnalysisState = useCallback(() => {
     setNlp(null);
     setAgent(null);
     setDocument(null);
@@ -228,21 +234,61 @@ export function NlpOpenCodePanel({ labResult }: NlpOpenCodePanelProps) {
     setProgressPercent(null);
     setProgressSteps([]);
     setActiveStepId(null);
-    try {
-      const lab = await labResultFromSampleFileName(fileName);
-      setSampleResult(lab);
-      setSelectedSample(fileName);
-    } catch (e) {
-      setSampleResult(null);
-      setError(
-        e instanceof Error
-          ? e.message
-          : "Örnek MOCK_TRANSCRIPTS yüklenirken hata oluştu."
-      );
-    } finally {
-      setSampleLoading(false);
-    }
   }, []);
+
+  const loadSampleResult = useCallback(
+    async (fileName: string) => {
+      setSampleLoading(true);
+      setError(null);
+      clearAnalysisState();
+      setUploadResult(null);
+      try {
+        const lab = await labResultFromSampleFileName(fileName);
+        setSampleResult(lab);
+        setSelectedSample(fileName);
+      } catch (e) {
+        setSampleResult(null);
+        setError(e instanceof Error ? e.message : t("nlp.errSample"));
+      } finally {
+        setSampleLoading(false);
+      }
+    },
+    [clearAnalysisState, t]
+  );
+
+  const loadExternalAudio = useCallback(
+    async (file: File) => {
+      setUploadLoading(true);
+      setError(null);
+      clearAnalysisState();
+      setSelectedSample(null);
+      setSampleResult(null);
+      let objectUrl: string | null = null;
+      try {
+        const info = await decodeAudioFile(file);
+        objectUrl = URL.createObjectURL(file);
+        const lab = await runLabPipeline({
+          fileName: file.name,
+          durationSec: info.durationSec || 8,
+          sampleRate: info.sampleRate || 16000,
+          mode: "mock",
+          audioUrl: objectUrl,
+        });
+        setUploadResult(lab);
+        // Same spirit as main tab: transcript + offline sentiment ready for NLP run.
+        if (browserNlpOn) {
+          setNlp(analyzeBrowserNlp(lab.transcript.text));
+        }
+      } catch (e) {
+        setUploadResult(null);
+        setError(e instanceof Error ? e.message : t("nlp.errUpload"));
+      } finally {
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        setUploadLoading(false);
+      }
+    },
+    [browserNlpOn, clearAnalysisState, t]
+  );
 
   useEffect(() => {
     const first = SAMPLE_CATALOG[0]?.fileName;
@@ -250,15 +296,18 @@ export function NlpOpenCodePanel({ labResult }: NlpOpenCodePanelProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /** Prefer catalog sample (MOCK_TRANSCRIPTS); fall back to Tek dosya labResult. */
-  const effectiveResult = sampleResult ?? labResult;
-  const sourceKind: "sample" | "lab" | null = sampleResult
-    ? "sample"
-    : labResult
-      ? "lab"
-      : null;
+  /** Prefer NLP-tab external upload, then catalog sample, then Tek dosya labResult. */
+  const effectiveResult = uploadResult ?? sampleResult ?? labResult;
+  const sourceKind: "upload" | "sample" | "lab" | null = uploadResult
+    ? "upload"
+    : sampleResult
+      ? "sample"
+      : labResult
+        ? "lab"
+        : null;
 
-  const canRun = !!effectiveResult && !sampleLoading;
+  const sourceBusy = sampleLoading || uploadLoading;
+  const canRun = !!effectiveResult && !sourceBusy;
 
   const previewDoc = useMemo(() => {
     if (!effectiveResult) return null;
@@ -301,9 +350,7 @@ export function NlpOpenCodePanel({ labResult }: NlpOpenCodePanelProps) {
   const runAnalysis = useCallback(
     async (followUpQuestion?: string) => {
       if (!effectiveResult) {
-        setError(
-          "Önce bir Common Voice örneği seçin (MOCK_TRANSCRIPTS) veya Tek dosya sekmesinde transkribe edin."
-        );
+        setError(t("nlp.errNeedSource"));
         return;
       }
       setRunning(true);
@@ -409,6 +456,7 @@ export function NlpOpenCodePanel({ labResult }: NlpOpenCodePanelProps) {
       openCodeOn,
       selectedModel,
       status,
+      t,
     ]
   );
 
@@ -625,8 +673,24 @@ export function NlpOpenCodePanel({ labResult }: NlpOpenCodePanelProps) {
       <SampleCatalogRow
         selectedSample={selectedSample}
         onSelectSample={(n) => void loadSampleResult(n)}
-        disabled={running || sampleLoading}
+        disabled={running || sourceBusy}
       />
+
+      <div
+        className="overflow-hidden rounded-xl border border-tuik/30 bg-white p-4 shadow-sm"
+        data-testid="nlp-external-upload"
+      >
+        <AudioUploader
+          testId="nlp-audio-uploader"
+          rootId="nlp-upload-zone"
+          onSelectSample={(n) => void loadSampleResult(n)}
+          onUpload={(f) => void loadExternalAudio(f)}
+          disabled={running || sourceBusy}
+          title={t("nlp.upload.title")}
+          hint={t("nlp.upload.hint")}
+          loadedMessage={t("nlp.upload.loaded")}
+        />
+      </div>
 
       <div className="overflow-hidden rounded-xl border border-tuik/40 bg-white shadow-sm">
         <div className="accent-bar" aria-hidden />
@@ -687,10 +751,27 @@ export function NlpOpenCodePanel({ labResult }: NlpOpenCodePanelProps) {
             </div>
           </div>
 
-          {sampleLoading ? (
-            <div className="rounded-xl border border-tuik/25 bg-tuik-soft/40 px-4 py-3 text-sm text-slate-700">
+          {sourceBusy ? (
+            <div
+              className="rounded-xl border border-tuik/25 bg-tuik-soft/40 px-4 py-3 text-sm text-slate-700"
+              data-testid="nlp-source-loading"
+            >
               <Loader2 className="mr-2 inline h-4 w-4 animate-spin text-tuik" aria-hidden />
-              MOCK_TRANSCRIPTS yükleniyor…
+              {uploadLoading
+                ? t("nlp.upload.processing")
+                : "MOCK_TRANSCRIPTS yükleniyor…"}
+            </div>
+          ) : sourceKind === "upload" && effectiveResult ? (
+            <div
+              className="rounded-xl border border-tuik/25 bg-tuik-soft/40 px-4 py-3 text-sm text-slate-800"
+              data-testid="nlp-source-upload"
+            >
+              <strong className="font-semibold text-tuik-deep">
+                {effectiveResult.fileName}
+              </strong>{" "}
+              · {t("nlp.source.upload")} · {effectiveResult.transcript.source} ·{" "}
+              {t("lab.sentiment")}: {effectiveResult.sentiment.label}/
+              {effectiveResult.sentiment.emotion}
             </div>
           ) : sourceKind === "sample" && effectiveResult ? (
             <div
@@ -701,12 +782,14 @@ export function NlpOpenCodePanel({ labResult }: NlpOpenCodePanelProps) {
               <strong className="font-semibold text-tuik-deep">
                 {effectiveResult.fileName}
               </strong>{" "}
-              · SAMPLE_CATALOG → MOCK_TRANSCRIPTS ·{" "}
-              {effectiveResult.transcript.source} · yükleme / Tek dosya STT gerekmez
+              · {t("nlp.source.sample")} · {effectiveResult.transcript.source}
             </div>
           ) : sourceKind === "lab" && effectiveResult ? (
-            <div className="rounded-xl border border-tuik/25 bg-tuik-soft/40 px-4 py-3 text-sm text-slate-800">
-              Kaynak lab sonucu:{" "}
+            <div
+              className="rounded-xl border border-tuik/25 bg-tuik-soft/40 px-4 py-3 text-sm text-slate-800"
+              data-testid="nlp-source-lab"
+            >
+              {t("nlp.source.lab")}:{" "}
               <strong className="font-semibold text-tuik-deep">
                 {effectiveResult.fileName}
               </strong>{" "}
@@ -714,10 +797,11 @@ export function NlpOpenCodePanel({ labResult }: NlpOpenCodePanelProps) {
               {new Date(effectiveResult.processedAt).toLocaleString("tr-TR")}
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-              <strong className="font-semibold">Kaynak bekleniyor:</strong> Yukarıdan
-              bir Common Voice örneği seçin (MOCK_TRANSCRIPTS) veya{" "}
-              <em>Tek dosya</em> sekmesinde transkribe edin.
+            <div
+              className="rounded-xl border border-dashed border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+              data-testid="nlp-source-waiting"
+            >
+              {t("nlp.source.waiting")}
             </div>
           )}
 
@@ -932,6 +1016,11 @@ export function NlpOpenCodePanel({ labResult }: NlpOpenCodePanelProps) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <SentimentPanel
+          sentiment={effectiveResult?.sentiment ?? null}
+          loading={sourceBusy}
+        />
+
         <section className="rounded-xl border border-tuik/30 bg-white p-5 shadow-sm">
           <div className="mb-3 flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-tuik" aria-hidden />
@@ -997,7 +1086,7 @@ export function NlpOpenCodePanel({ labResult }: NlpOpenCodePanelProps) {
           className={`opencode-chat-card rounded-xl border bg-white shadow-sm transition-all ${
             agentChatExpanded
               ? "border-tuik/50 p-5 shadow-md shadow-tuik/10 lg:col-span-2"
-              : "border-tuik/30 p-5"
+              : "border-tuik/30 p-5 lg:col-span-2"
           }`}
           data-testid="opencode-agent-card"
         >

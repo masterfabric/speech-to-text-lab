@@ -6,9 +6,17 @@ import { isAudioFile } from "@/lib/audio-utils";
 import { useLocale } from "@/components/LocaleProvider";
 
 type AudioUploaderProps = {
-  onSelectSample: (fileName: string) => void;
+  onSelectSample?: (fileName: string) => void;
   onUpload: (file: File) => void;
   disabled?: boolean;
+  /** Override chrome strings (defaults: upload.* i18n keys). */
+  title?: string;
+  hint?: string;
+  loadedMessage?: string;
+  /** Optional test id on the drop zone root. */
+  testId?: string;
+  /** DOM id for the drop zone root (default: lab-upload-zone). */
+  rootId?: string;
 };
 
 function pickAudioFile(dataTransfer: DataTransfer | null): File | null {
@@ -31,6 +39,11 @@ export function AudioUploader({
   onSelectSample,
   onUpload,
   disabled,
+  title,
+  hint: hintProp,
+  loadedMessage,
+  testId,
+  rootId = "lab-upload-zone",
 }: AudioUploaderProps) {
   const { t } = useLocale();
 
@@ -38,6 +51,7 @@ export function AudioUploader({
   const dragDepth = useRef(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hint, setHint] = useState<string | null>(null);
+  const loadedPrefix = loadedMessage ?? t("upload.loaded");
 
   const resetDrag = useCallback(() => {
     dragDepth.current = 0;
@@ -86,7 +100,7 @@ export function AudioUploader({
 
       const sampleName = e.dataTransfer.getData("application/x-stt-sample");
       if (sampleName) {
-        onSelectSample(sampleName);
+        onSelectSample?.(sampleName);
         return;
       }
 
@@ -96,9 +110,9 @@ export function AudioUploader({
         return;
       }
       onUpload(file);
-      setHint(`${t("upload.loaded")} (${file.name})`);
+      setHint(`${loadedPrefix} (${file.name})`);
     },
-    [disabled, onSelectSample, onUpload, resetDrag, t]
+    [disabled, loadedPrefix, onSelectSample, onUpload, resetDrag, t]
   );
 
   const handleFileChange = useCallback(
@@ -110,15 +124,16 @@ export function AudioUploader({
         return;
       }
       onUpload(file);
-      setHint(`${t("upload.loaded")} (${file.name})`);
+      setHint(`${loadedPrefix} (${file.name})`);
       e.target.value = "";
     },
-    [onUpload, t]
+    [loadedPrefix, onUpload, t]
   );
 
   return (
     <div
-      id="lab-upload-zone"
+      id={rootId}
+      data-testid={testId}
       className="space-y-3 rounded-2xl"
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
@@ -127,10 +142,10 @@ export function AudioUploader({
     >
       <div>
         <h3 className="text-sm font-semibold tracking-wide text-tuik">
-          {t("upload.title")}
+          {title ?? t("upload.title")}
         </h3>
         <p className="mt-1 text-xs leading-relaxed text-slate-600">
-          {t("upload.hint")}
+          {hintProp ?? t("upload.hint")}
         </p>
         <div
           role="button"
