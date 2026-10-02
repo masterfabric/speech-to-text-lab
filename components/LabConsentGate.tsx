@@ -17,6 +17,8 @@ function GateSplash() {
 /**
  * Gates the main lab: visitors without localStorage consent are sent to /onboarding.
  * /onboarding itself is exempt until approved, then redirects home.
+ * Local/dev bypass: ConsentProvider treats the session as already consented
+ * (see shouldBypassOnboardingGate) so this gate opens the lab immediately.
  */
 export function LabConsentGate({ children }: { children: React.ReactNode }) {
   const { consent } = useConsent();
