@@ -78,15 +78,6 @@ export function shouldBypassOnboardingGate(): boolean {
   return host === "localhost" || host === "127.0.0.1" || host === "[::1]";
 }
 
-/** In-memory consent used when the local/dev gate is bypassed (not written to localStorage). */
-export function localDevConsentRecord(locale?: string): ConsentRecord {
-  return {
-    version: CONSENT_VERSION,
-    acceptedAt: new Date().toISOString(),
-    locale,
-  };
-}
-
 export type OnboardingSubmitResult =
   | { ok: true }
   | { ok: false; error: string };
