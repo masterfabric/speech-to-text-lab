@@ -45,7 +45,10 @@ export function SentimentPanel({ sentiment, loading }: SentimentPanelProps) {
 
   if (!sentiment) {
     return (
-      <div className="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
+      <div
+        className="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500"
+        data-testid="sentiment-panel-empty"
+      >
         {t("panel.sentimentEmpty")}
       </div>
     );
@@ -55,10 +58,17 @@ export function SentimentPanel({ sentiment, loading }: SentimentPanelProps) {
     ...Object.values(sentiment.emotionScores),
     0.001
   );
-  const EmotionIcon = emotionIcon[sentiment.emotion];
+  const EmotionIcon = emotionIcon[sentiment.emotion] ?? Meh;
+  const labelStyle =
+    labelStyles[sentiment.label] ?? labelStyles.nötr;
+  // Always render numeric score (including 0.00) — do not treat 0 as missing.
+  const scoreText = Number(sentiment.score).toFixed(2);
 
   return (
-    <div className="space-y-4 rounded-xl border border-tuik/30 bg-white p-5 shadow-sm">
+    <div
+      className="space-y-4 rounded-xl border border-tuik/30 bg-white p-5 shadow-sm"
+      data-testid="sentiment-panel"
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-tuik">
           {t("panel.sentiment")}
@@ -70,16 +80,23 @@ export function SentimentPanel({ sentiment, loading }: SentimentPanelProps) {
 
       <div className="flex flex-wrap items-center gap-3">
         <span
-          className={`rounded-full px-3 py-1 text-sm font-semibold ring-1 ${labelStyles[sentiment.label]}`}
+          data-testid="sentiment-polarity"
+          className={`rounded-full px-3 py-1 text-sm font-semibold ring-1 ${labelStyle}`}
         >
           {sentiment.label.toLocaleUpperCase("tr-TR")}
         </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-tuik-soft px-3 py-1 text-sm font-medium text-tuik-deep ring-1 ring-tuik/30">
+        <span
+          data-testid="sentiment-emotion"
+          className="inline-flex items-center gap-1.5 rounded-full bg-tuik-soft px-3 py-1 text-sm font-medium text-tuik-deep ring-1 ring-tuik/30"
+        >
           <EmotionIcon className="h-4 w-4 shrink-0" aria-hidden />
           {sentiment.emotion}
         </span>
-        <span className="text-xs text-slate-600">
-          {t("panel.score")}: {sentiment.score.toFixed(2)} · {t("panel.confidence")}:{" "}
+        <span
+          data-testid="sentiment-score"
+          className="text-xs text-slate-600"
+        >
+          {t("panel.score")}: {scoreText} · {t("panel.confidence")}:{" "}
           {Math.round(sentiment.confidence * 100)}%
         </span>
       </div>

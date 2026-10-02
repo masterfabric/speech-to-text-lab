@@ -381,8 +381,13 @@ export const MOCK_TRANSCRIPTS: Record<
     text: "Sorun yok. Tamam mı? Yüzlerce kiloluk bir ağırlık taşıyormuş gibi aşağıya çekilen elini uzattı. Hiçbirisi artık benimle konuşmuyor. Hepsi bana düşman gözlerle bakıyordu. Bunun için İstanbul'da bulunan Alman Yahudisi bir profesörün çağrılması münasip görüldü. Bir kısmı da bu işte çalışanları yiyecek, içecek getirir, giyim eşyası tedarik edermiş. Kalktım, giyindim ve beni bu küçük kasabada alıkoyan serseriliğe için için güldüm. Bugün getirip bıraktığınız koyunların bile hepsini yemedik. Boğazımızdan kestik. Bir kısmını size geri vereceğiz. Ne cevabı deyince? Basbayağı cevap vereceksiniz, mecbursunuz, kanun var diye dayatmış. Bu sefer Yahudi profesör de aralarındaydı. Çok kan var. Bana ne olduğunu bilmiyorum. Yurdun otlusundan kutlusu yedir. Vah kızım vah.",
     language: "tr-TR",
   },
+  /**
+   * Unknown / externally uploaded demo files (no SAMPLE_CATALOG match).
+   * Neutral call-center style text so offline sentiment still yields
+   * polarity (nötr) + score in the report UI — not a "missing transcript" stub.
+   */
   default: {
-    text: "Bu ses dosyası için eşleşen bir Common Voice Türkçe örnek transkripti bulunamadı.",
+    text: "Merhaba, görüşmeye başlıyoruz. Konuşma kayıt altına alınmaktadır. Bugün yalnızca adres ve kayıt numarası teyidi yapacağız. İşlem sırasına alındı.",
     language: "tr-TR",
   },
 };

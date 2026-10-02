@@ -41,10 +41,14 @@ export function LabWorkspace() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<LabResult | null>(null);
-  const [objectUrl, setObjectUrl] = useState<string | null>(null);
+  /** Blob URL for the current upload — owned here; revoke only when replacing or unmounting. */
+  const objectUrlRef = useRef<string | null>(null);
+  /** Keep the File so blob URLs can be recreated if the player remounts after an STT mode switch. */
+  const uploadedFileRef = useRef<File | null>(null);
   const [playedOnce, setPlayedOnce] = useState(false);
   const [pageDragging, setPageDragging] = useState(false);
   const pageDragDepth = useRef(0);
+  const uploadRecoveringRef = useRef(false);
   const [workspaceMode, setWorkspaceMode] = useState<"single" | "batch" | "nlp">("single");
   const [currentTime, setCurrentTime] = useState(0);
   const seekAudioRef = useRef<((time: number) => void) | null>(null);
@@ -58,11 +62,31 @@ export function LabWorkspace() {
     setCurrentTime(time);
   }, []);
 
+  const revokeObjectUrl = useCallback(() => {
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    }
+  }, []);
+
+  /** Create or replace the upload blob URL without Strict-Mode double-revoke races. */
+  const assignUploadObjectUrl = useCallback(
+    (file: File): string => {
+      revokeObjectUrl();
+      const url = URL.createObjectURL(file);
+      objectUrlRef.current = url;
+      uploadedFileRef.current = file;
+      return url;
+    },
+    [revokeObjectUrl]
+  );
+
   useEffect(() => {
     return () => {
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      revokeObjectUrl();
+      uploadedFileRef.current = null;
     };
-  }, [objectUrl]);
+  }, [revokeObjectUrl]);
 
   const sampleSources = useMemo(() => {
     if (!selectedSample) return null;
@@ -77,10 +101,8 @@ export function LabWorkspace() {
       setCurrentTime(0);
       setSelectedSample(name);
       setFileName(name);
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-        setObjectUrl(null);
-      }
+      uploadedFileRef.current = null;
+      revokeObjectUrl();
       const url = `/samples/${name}`;
       setAudioUrl(url);
       try {
@@ -98,7 +120,7 @@ export function LabWorkspace() {
         );
       }
     },
-    [objectUrl, t]
+    [revokeObjectUrl, t]
   );
 
   const onUpload = useCallback(
@@ -109,9 +131,7 @@ export function LabWorkspace() {
       setCurrentTime(0);
       setSelectedSample(null);
       setFileName(file.name);
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-      const url = URL.createObjectURL(file);
-      setObjectUrl(url);
+      const url = assignUploadObjectUrl(file);
       setAudioUrl(url);
       try {
         const info = await decodeAudioFile(file);
@@ -121,12 +141,27 @@ export function LabWorkspace() {
         setError(t("lab.errDecode"));
       }
     },
-    [objectUrl]
+    [assignUploadObjectUrl, t]
   );
 
   const onWaveReady = useCallback((d: number) => {
     if (d > 0) setDurationSec(d);
   }, []);
+
+  /** If a blob: URL was revoked (Strict Mode / remount), rebuild from retained File. */
+  const recoverUploadAudio = useCallback(() => {
+    const file = uploadedFileRef.current;
+    if (!file || selectedSample || uploadRecoveringRef.current) return;
+    uploadRecoveringRef.current = true;
+    try {
+      const url = assignUploadObjectUrl(file);
+      setAudioUrl(url);
+    } finally {
+      window.setTimeout(() => {
+        uploadRecoveringRef.current = false;
+      }, 750);
+    }
+  }, [assignUploadObjectUrl, selectedSample]);
 
   const transcribe = useCallback(async () => {
     if (!fileName || !audioUrl) {
@@ -357,6 +392,7 @@ export function LabWorkspace() {
         <SttModeSelector
           value={mode}
           onChange={(m) => {
+            // Clear analysis only — never clear uploaded File / audioUrl / waveform.
             setMode(m);
             setResult(null);
             setLiveStages(null);
@@ -416,7 +452,10 @@ export function LabWorkspace() {
               </button>
             </div>
             {fileName ? (
-              <span className="rounded-md bg-tuik-soft px-2 py-1 text-[10px] font-medium text-tuik-dim ring-1 ring-tuik/30">
+              <span
+                data-testid="audio-stage-file-badge"
+                className="rounded-md bg-tuik-soft px-2 py-1 text-[10px] font-medium text-tuik-dim ring-1 ring-tuik/30"
+              >
                 {fileName}
                 {durationSec > 0
                   ? ` · ${durationSec.toFixed(1)} ${t("lab.sec")} · ${Math.round(sampleRate)} Hz`
@@ -441,6 +480,7 @@ export function LabWorkspace() {
                     if (d > 0) setDurationSec(d);
                   }}
                   seekRef={seekAudioRef}
+                  onSourceError={recoverUploadAudio}
                 />
               </div>
               <Waveform
@@ -487,6 +527,7 @@ export function LabWorkspace() {
                       if (d > 0) setDurationSec(d);
                     }}
                     seekRef={seekAudioRef}
+                    onSourceError={recoverUploadAudio}
                   />
                 </div>
               </div>

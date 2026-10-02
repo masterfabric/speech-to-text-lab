@@ -24,6 +24,8 @@ type AudioPlayerProps = {
   onDurationChange?: (duration: number) => void;
   /** Parent assigns seek(timeSec) for Waveform scrub. */
   seekRef?: MutableRefObject<((time: number) => void) | null>;
+  /** Called when the media element fails to load (e.g. revoked blob URL). */
+  onSourceError?: () => void;
 };
 
 function formatTime(sec: number): string {
@@ -47,19 +49,24 @@ export function AudioPlayer({
   onTimeUpdate,
   onDurationChange,
   seekRef,
+  onSourceError,
 }: AudioPlayerProps) {
   const ref = useRef<HTMLAudioElement>(null);
   const rafRef = useRef<number | null>(null);
   const onTimeUpdateRef = useRef(onTimeUpdate);
   const onDurationChangeRef = useRef(onDurationChange);
+  const onSourceErrorRef = useRef(onSourceError);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  onTimeUpdateRef.current = onTimeUpdate;
-  onDurationChangeRef.current = onDurationChange;
+  useEffect(() => {
+    onTimeUpdateRef.current = onTimeUpdate;
+    onDurationChangeRef.current = onDurationChange;
+    onSourceErrorRef.current = onSourceError;
+  }, [onTimeUpdate, onDurationChange, onSourceError]);
 
   const key = sources?.map((s) => s.src).join("|") || src || "empty";
 
@@ -185,6 +192,7 @@ export function AudioPlayer({
         setError(
           "Ses dosyası yüklenemedi. /samples/ yolunu kontrol edin veya WAV/M4A deneyin."
         );
+        onSourceErrorRef.current?.();
       }}
     >
       {sources && sources.length > 0
