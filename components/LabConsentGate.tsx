@@ -17,25 +17,30 @@ function GateSplash() {
 /**
  * Gates the main lab: visitors without localStorage consent are sent to /onboarding.
  * /onboarding itself is exempt until approved, then redirects home.
+ * Local/dev bypass: labUnlocked is true without consent, so / opens immediately
+ * while /onboarding stays available (submit skips Web3Forms).
  */
 export function LabConsentGate({ children }: { children: React.ReactNode }) {
-  const { consent } = useConsent();
+  const { consent, labUnlocked } = useConsent();
   const router = useRouter();
   const pathname = usePathname();
   const onOnboarding = pathname === "/onboarding";
 
   useEffect(() => {
     if (consent === undefined) return;
-    if (!consent && !onOnboarding) {
+    // Production (and local without bypass): require consent for non-onboarding routes.
+    if (!labUnlocked && !onOnboarding) {
       router.replace("/onboarding");
     }
+    // After a real approve (stored consent), leave /onboarding for the lab.
+    // Local bypass alone does not redirect away from /onboarding.
     if (consent && onOnboarding) {
       router.replace("/");
     }
-  }, [consent, onOnboarding, router]);
+  }, [consent, labUnlocked, onOnboarding, router]);
 
   if (consent === undefined) return <GateSplash />;
-  if (!consent && !onOnboarding) return <GateSplash />;
+  if (!labUnlocked && !onOnboarding) return <GateSplash />;
   if (consent && onOnboarding) return <GateSplash />;
 
   return <>{children}</>;

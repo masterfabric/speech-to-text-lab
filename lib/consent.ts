@@ -66,6 +66,18 @@ export function clearConsent(): void {
   }
 }
 
+/**
+ * Local `next dev` / localhost: skip splash → onboarding → Web3Forms.
+ * Production (e.g. Vercel / tuik.masterfabric.co) must keep the first-visit flow.
+ * Client-only — call after mount (window available for hostname check).
+ */
+export function shouldBypassOnboardingGate(): boolean {
+  if (process.env.NODE_ENV === "development") return true;
+  if (typeof window === "undefined") return false;
+  const host = window.location.hostname;
+  return host === "localhost" || host === "127.0.0.1" || host === "[::1]";
+}
+
 export type OnboardingSubmitResult =
   | { ok: true }
   | { ok: false; error: string };
@@ -80,19 +92,11 @@ function asNonEmptyString(value: string, max: number): string | null {
  * Submit onboarding from the browser directly to Web3Forms.
  * Free plan requires client-side POST (server IPs need Pro).
  * Uses NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY (domain-restricted public key).
+ * Local/dev: never calls Web3Forms and does not require a UUID access key.
  */
 export async function submitOnboardingForm(
   input: OnboardingFormInput
 ): Promise<OnboardingSubmitResult> {
-  const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY?.trim();
-  if (!accessKey) {
-    return {
-      ok: false,
-      error:
-        "NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY yapılandırılmamış (.env.local / Vercel).",
-    };
-  }
-
   const firstName = asNonEmptyString(input.firstName, 120);
   const lastName = asNonEmptyString(input.lastName, 120);
   const reason = asNonEmptyString(input.reason, 4000);
@@ -108,6 +112,20 @@ export async function submitOnboardingForm(
     return {
       ok: false,
       error: "KVKK / yerel veri onayı zorunludur.",
+    };
+  }
+
+  // Local next dev / localhost: accept without access_key or remote submit.
+  if (shouldBypassOnboardingGate()) {
+    return { ok: true };
+  }
+
+  const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY?.trim();
+  if (!accessKey) {
+    return {
+      ok: false,
+      error:
+        "NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY yapılandırılmamış (.env.local / Vercel).",
     };
   }
 

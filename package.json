@@ -16,7 +16,9 @@
     "verify:sample-catalog": "node scripts/verify-sample-catalog-row.mjs",
     "verify:nlp-opencode": "node scripts/verify-nlp-opencode-panel.mjs",
     "verify:audio-stage": "node scripts/verify-audio-stage-views.mjs",
-    "verify:upload-sentiment": "node scripts/verify-upload-sentiment-persist.mjs"
+    "verify:upload-sentiment": "node scripts/verify-upload-sentiment-persist.mjs",
+    "verify:local-onboarding-bypass": "node scripts/verify-local-onboarding-bypass.mjs",
+    "verify:local-submit-unit": "NODE_ENV=development npx tsx scripts/verify-local-submit-unit.mjs"
   },
   "dependencies": {
     "jspdf": "^4.2.1",
@@ -37,6 +39,7 @@
     "playwright": "^1.55.0",
     "serve": "^14.2.5",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }

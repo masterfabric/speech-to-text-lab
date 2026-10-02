@@ -12,6 +12,7 @@ import {
 import {
   CONSENT_VERSION,
   readConsent,
+  shouldBypassOnboardingGate,
   submitOnboardingForm,
   writeConsent,
   type ConsentRecord,
@@ -24,13 +25,19 @@ type ConsentContextValue = {
   /** undefined while hydrating from localStorage */
   consent: ConsentRecord | null | undefined;
   approved: boolean;
+  /**
+   * Local/dev: lab is reachable without consent; production requires a stored record.
+   * False while hydrating (gate shows splash until known).
+   */
+  labUnlocked: boolean;
   /** Persist locally after a successful (or local-only) accept. */
   markApproved: (fields: {
     firstName: string;
     lastName: string;
     reason: string;
   }) => void;
-  /** POST form to Web3Forms (browser) then mark approved on success. */
+  /** POST form to Web3Forms (browser) then mark approved on success.
+   *  Local/dev skips Web3Forms and marks approved immediately. */
   submitAndApprove: (
     fields: Omit<OnboardingFormInput, "locale" | "consent"> & {
       consent: boolean;
@@ -45,8 +52,17 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
   const [consent, setConsent] = useState<ConsentRecord | null | undefined>(
     undefined
   );
+  const [localBypass, setLocalBypass] = useState(false);
 
   useEffect(() => {
+    // Local/dev: unlock the lab without fabricating consent so /onboarding
+    // remains usable (submit skips Web3Forms). Production reads localStorage.
+    if (shouldBypassOnboardingGate()) {
+      setLocalBypass(true);
+      setConsent(readConsent());
+      return;
+    }
+    setLocalBypass(false);
     setConsent(readConsent());
   }, []);
 
@@ -92,10 +108,12 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
     () => ({
       consent,
       approved: Boolean(consent),
+      // While hydrating, keep locked so the gate splash does not flash the lab/onboarding.
+      labUnlocked: consent !== undefined && (localBypass || Boolean(consent)),
       markApproved,
       submitAndApprove,
     }),
-    [consent, markApproved, submitAndApprove]
+    [consent, localBypass, markApproved, submitAndApprove]
   );
 
   return (
