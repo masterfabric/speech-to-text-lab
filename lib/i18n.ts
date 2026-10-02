@@ -180,6 +180,10 @@ export type Dict = {
   "panel.emotion": string;
   "panel.accuracy": string;
   "panel.proxyHint": string;
+  "panel.callAnalysis": string;
+  "panel.callSegments": string;
+  "panel.keyPhrases": string;
+  "panel.callDisclaimer": string;
   // First-visit gate
   "gate.subtitle": string;
   "gate.splashTitle": string;
@@ -357,6 +361,11 @@ const tr: Dict = {
   "panel.emotion": "Duygu",
   "panel.accuracy": "Doğruluk",
   "panel.proxyHint": "güven proxy",
+  "panel.callAnalysis": "Çağrı özeti (çok dakikalık)",
+  "panel.callSegments": "Süre dilimleri",
+  "panel.keyPhrases": "Anahtar ifadeler",
+  "panel.callDisclaimer":
+    "Eğitim demosu · gerçek ALO 124 / vatandaş PII yoktur",
   "gate.subtitle": "Eğitim amaçlı STT laboratuvarı",
   "gate.splashTitle": "Bu sitede neler var?",
   "gate.splashLoading": "Arayüz hazırlanıyor…",
@@ -527,6 +536,11 @@ const en: Dict = {
   "panel.emotion": "Emotion",
   "panel.accuracy": "Accuracy",
   "panel.proxyHint": "confidence proxy",
+  "panel.callAnalysis": "Call summary (multi-minute)",
+  "panel.callSegments": "Duration segments",
+  "panel.keyPhrases": "Key phrases",
+  "panel.callDisclaimer":
+    "Educational demo · no real ALO 124 / citizen PII",
   "gate.subtitle": "Educational STT laboratory",
   "gate.splashTitle": "What this site includes",
   "gate.splashLoading": "Preparing the interface…",
@@ -702,6 +716,11 @@ const fr: Dict = {
   "panel.emotion": "Émotion",
   "panel.accuracy": "Exactitude",
   "panel.proxyHint": "proxy de confiance",
+  "panel.callAnalysis": "Résumé d’appel (multi-minutes)",
+  "panel.callSegments": "Segments temporels",
+  "panel.keyPhrases": "Expressions clés",
+  "panel.callDisclaimer":
+    "Démo éducative · pas de PII ALO 124 réelle",
   "gate.subtitle": "Laboratoire STT éducatif",
   "gate.splashTitle": "Contenu de ce site",
   "gate.splashLoading": "Préparation de l’interface…",
@@ -865,6 +884,10 @@ const cn: Dict = {
   "panel.emotion": "情绪",
   "panel.accuracy": "准确率",
   "panel.proxyHint": "置信度代理",
+  "panel.callAnalysis": "通话摘要（多分钟）",
+  "panel.callSegments": "时段分段",
+  "panel.keyPhrases": "关键短语",
+  "panel.callDisclaimer": "教育演示 · 非真实 ALO 124 / 公民 PII",
   "gate.subtitle": "教育用途语音转写实验室",
   "gate.splashTitle": "本站功能",
   "gate.splashLoading": "正在准备界面…",
@@ -1032,6 +1055,10 @@ const jp: Dict = {
   "panel.emotion": "情動",
   "panel.accuracy": "精度",
   "panel.proxyHint": "信頼度プロキシ",
+  "panel.callAnalysis": "通話要約（複数分）",
+  "panel.callSegments": "時間セグメント",
+  "panel.keyPhrases": "キーフレーズ",
+  "panel.callDisclaimer": "教育デモ · 実在の ALO 124 / 市民 PII なし",
   "gate.subtitle": "教育向け STT ラボ",
   "gate.splashTitle": "このサイトの内容",
   "gate.splashLoading": "インターフェースを準備中…",
@@ -1199,6 +1226,10 @@ const ar: Dict = {
   "panel.emotion": "العاطفة",
   "panel.accuracy": "الدقة",
   "panel.proxyHint": "وكيل ثقة",
+  "panel.callAnalysis": "ملخص المكالمة (عدة دقائق)",
+  "panel.callSegments": "شرائح المدة",
+  "panel.keyPhrases": "عبارات مفتاحية",
+  "panel.callDisclaimer": "عرض تعليمي · لا يوجد ALO 124 / بيانات مواطن حقيقية",
   "gate.subtitle": "مختبر STT تعليمي",
   "gate.splashTitle": "ما يشمله هذا الموقع",
   "gate.splashLoading": "جارٍ تجهيز الواجهة…",

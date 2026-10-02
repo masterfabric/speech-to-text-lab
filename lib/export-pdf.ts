@@ -117,6 +117,27 @@ function writeSingleSections(ctx: WriteCtx, result: LabResult) {
   writeBody(ctx, transcript.text || "—");
   writeSpacer(ctx, 3);
 
+  if (result.callAnalysis) {
+    writeHeading(ctx, "Çağrı özeti (çok dakikalık)");
+    writeBody(ctx, result.callAnalysis.summaryTr);
+    writeBody(
+      ctx,
+      `Anahtar ifadeler: ${result.callAnalysis.keyPhrases.join("; ") || "—"}`
+    );
+    if (result.callAnalysis.segments.length > 1) {
+      writeBody(ctx, "Süre dilimleri:", { bold: true, size: 10 });
+      for (const seg of result.callAnalysis.segments) {
+        writeBody(
+          ctx,
+          `${formatDuration(seg.startSec)}-${formatDuration(seg.endSec)} · ${seg.label}: ${seg.text}`,
+          { size: 9 }
+        );
+      }
+    }
+    writeBody(ctx, result.callAnalysis.disclaimerTr, { size: 8 });
+    writeSpacer(ctx, 3);
+  }
+
   writeHeading(ctx, "Duygu / polarite");
   writeBody(ctx, `Polarite: ${sentiment.label}`);
   writeBody(ctx, `Duygu: ${sentiment.emotion}`);

@@ -4,7 +4,8 @@ import type { LabResult } from "@/lib/types";
 export const INSTRUCTOR_LINE = "Eğitmen mühendis Gürkan Fikret Günak";
 
 export function buildSingleExportText(result: LabResult): string {
-  const { transcript, metrics, sentiment, wer, fileName, processedAt } = result;
+  const { transcript, metrics, sentiment, wer, fileName, processedAt, callAnalysis } =
+    result;
   const lines = [
     "=== speech-to-text-lab · Analiz Raporu ===",
     INSTRUCTOR_LINE,
@@ -15,6 +16,28 @@ export function buildSingleExportText(result: LabResult): string {
     "--- Transkript ---",
     transcript.text,
     "",
+  ];
+
+  if (callAnalysis) {
+    lines.push("--- Çağrı özeti (çok dakikalık) ---");
+    lines.push(callAnalysis.summaryTr);
+    lines.push(
+      `Anahtar ifadeler: ${callAnalysis.keyPhrases.join("; ") || "—"}`
+    );
+    lines.push(`NLP niyet: ${callAnalysis.nlp.intent} (%${Math.round(callAnalysis.nlp.intentConfidence * 100)})`);
+    if (callAnalysis.segments.length > 1) {
+      lines.push("Süre dilimleri:");
+      for (const seg of callAnalysis.segments) {
+        lines.push(
+          `  ${formatDuration(seg.startSec)}-${formatDuration(seg.endSec)} · ${seg.label}: ${seg.text}`
+        );
+      }
+    }
+    lines.push(callAnalysis.disclaimerTr);
+    lines.push("");
+  }
+
+  lines.push(
     "--- Özet ---",
     `Süre: ${metrics.durationSec.toFixed(2)} sn (${formatDuration(metrics.durationSec)})`,
     `Örnekleme: ${Math.round(metrics.sampleRate)} Hz`,
@@ -40,8 +63,8 @@ export function buildSingleExportText(result: LabResult): string {
     "",
     "Not: Eğitim demosu. Ücretli API yok. Gerçek PII / ALO 124 kaydı yoktur.",
     INSTRUCTOR_LINE,
-    "==========================================",
-  ];
+    "=========================================="
+  );
   return lines.join("\n");
 }
 

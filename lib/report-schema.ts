@@ -85,6 +85,21 @@ export type ReportDocumentV1 = {
       wordAccuracy: number;
       noteTr: string;
     };
+    callAnalysis: {
+      isLongForm: boolean;
+      segmentCount: number;
+      summaryTr: string;
+      keyPhrases: string[];
+      disclaimerTr: string;
+      segments: {
+        index: number;
+        startSec: number;
+        endSec: number;
+        label: string;
+        text: string;
+        keyPhrases: string[];
+      }[];
+    } | null;
   };
   nlp: ReportNlpSection | null;
   agent: ReportAgentSection;
@@ -183,6 +198,23 @@ export function buildReportDocument(options: {
         wordAccuracy: result.wer.wordAccuracy,
         noteTr: result.wer.noteTr,
       },
+      callAnalysis: result.callAnalysis
+        ? {
+            isLongForm: result.callAnalysis.isLongForm,
+            segmentCount: result.callAnalysis.segmentCount,
+            summaryTr: result.callAnalysis.summaryTr,
+            keyPhrases: result.callAnalysis.keyPhrases,
+            disclaimerTr: result.callAnalysis.disclaimerTr,
+            segments: result.callAnalysis.segments.map((s) => ({
+              index: s.index,
+              startSec: s.startSec,
+              endSec: s.endSec,
+              label: s.label,
+              text: s.text,
+              keyPhrases: s.keyPhrases,
+            })),
+          }
+        : null,
     },
     nlp: nlpSection,
     agent: agentSection,

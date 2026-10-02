@@ -6,6 +6,11 @@ import { runPipelineStagesAsr } from "./pipeline-stt";
 import { analyzeSentiment } from "./sentiment";
 import type { SttMode } from "./stt-modes";
 import { supportsWebSpeech } from "./stt-modes";
+import {
+  buildCallAnalysis,
+  buildTelephonyMockTranscript,
+  type CallSegment,
+} from "./telephony-analysis";
 import { runVadNgramHybridAsr } from "./vad-ngram-stt";
 import { computeWer, estimateAccuracyFromConfidence } from "./wer";
 import type { LabResult, PipelineStage, TranscriptResult } from "./types";
@@ -137,16 +142,19 @@ function mockTranscript(
   fileName: string,
   durationSec: number,
   sampleRate: number
-): TranscriptResult {
+): { transcript: TranscriptResult; segments: CallSegment[] | null } {
   const mock = runMockAsr({ fileName, durationSec, sampleRate });
   return {
-    text: mock.text,
-    words: mock.words,
-    confidence: mock.confidence,
-    durationSec,
-    sampleRate,
-    source: "mock-asr",
-    language: mock.language,
+    transcript: {
+      text: mock.text,
+      words: mock.words,
+      confidence: mock.confidence,
+      durationSec,
+      sampleRate,
+      source: "mock-asr",
+      language: mock.language,
+    },
+    segments: mock.segments,
   };
 }
 
@@ -161,6 +169,9 @@ export async function runLabPipeline(options: {
   const mode: SttMode = options.mode ?? "mock";
   let transcript: TranscriptResult;
   let pipelineStages: PipelineStage[] | undefined;
+  let segments: CallSegment[] | null = null;
+  const sampleId = resolveSampleId(options.fileName);
+  const isUnknownUpload = sampleId === "default";
 
   if (mode === "pipeline") {
     const pipe = await runPipelineStagesAsr({
@@ -219,6 +230,7 @@ export async function runLabPipeline(options: {
       options.durationSec,
       options.sampleRate
     );
+    segments = mock.segments;
 
     let webText: string | null = null;
     let webConf = 0;
@@ -239,22 +251,27 @@ export async function runLabPipeline(options: {
       transcript = {
         text: webText,
         words,
-        confidence: webConf || mock.confidence,
+        confidence: webConf || mock.transcript.confidence,
         durationSec: options.durationSec,
         sampleRate: options.sampleRate,
         source: "hybrid",
         language: "tr-TR",
       };
+      segments = isUnknownUpload
+        ? buildTelephonyMockTranscript(options.durationSec).segments
+        : null;
     } else {
-      transcript = mock;
+      transcript = mock.transcript;
     }
   } else {
     // mock (default)
-    transcript = mockTranscript(
+    const mock = mockTranscript(
       options.fileName,
       options.durationSec,
       options.sampleRate
     );
+    transcript = mock.transcript;
+    segments = mock.segments;
   }
 
   // Never leave uploads with an empty transcript — skorlama needs text.
@@ -265,9 +282,10 @@ export async function runLabPipeline(options: {
       options.sampleRate
     );
     transcript = {
-      ...fallback,
+      ...fallback.transcript,
       source: transcript.source,
     };
+    segments = fallback.segments;
   }
 
   const metrics = computeMetricsFromWords({
@@ -277,13 +295,23 @@ export async function runLabPipeline(options: {
     text: transcript.text,
   });
 
-  // Always run sentiment — including nötr / score 0 for quiet or neutral clips.
+  // Always run sentiment — lexicon should reflect transcript content.
   const sentiment = analyzeSentiment(transcript.text || "");
 
   const reference = resolveReferenceText(options.fileName);
   const wer = reference
     ? computeWer(reference, transcript.text)
     : estimateAccuracyFromConfidence(transcript.confidence);
+
+  // Unknown uploads (incl. multi-minute 8 kHz telephony): attach segment + NLP report.
+  const callAnalysis = isUnknownUpload
+    ? buildCallAnalysis({
+        text: transcript.text,
+        durationSec: options.durationSec,
+        segments: segments ?? undefined,
+        sentimentSummaryTr: sentiment.summaryTr,
+      })
+    : undefined;
 
   return {
     transcript,
@@ -293,6 +321,7 @@ export async function runLabPipeline(options: {
     fileName: options.fileName,
     processedAt: new Date().toISOString(),
     pipelineStages,
+    callAnalysis,
   };
 }
 
