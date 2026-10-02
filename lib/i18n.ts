@@ -127,6 +127,19 @@ export type Dict = {
   "upload.unsupported": string;
   "upload.loaded": string;
 
+  // NLP tab — external audio upload
+  "nlp.upload.title": string;
+  "nlp.upload.hint": string;
+  "nlp.upload.loaded": string;
+  "nlp.upload.processing": string;
+  "nlp.source.upload": string;
+  "nlp.source.sample": string;
+  "nlp.source.lab": string;
+  "nlp.source.waiting": string;
+  "nlp.errNeedSource": string;
+  "nlp.errUpload": string;
+  "nlp.errSample": string;
+
   // STT selector
   "stt.title": string;
   "stt.tools": string;
@@ -297,6 +310,23 @@ const tr: Dict = {
   "upload.unsupported":
     "Desteklenmeyen tür. WAV / MP3 / M4A yükleyin.",
   "upload.loaded": "Yüklendi — ana oynatıcıya yüklendi.",
+
+  "nlp.upload.title": "Harici ses yükle",
+  "nlp.upload.hint":
+    "NLP sekmesinde dışarıdan WAV/MP3/M4A sürükleyin veya seçin. STT sonrası duygu ve tarayıcı NLP aynı transkript üzerinde çalışır.",
+  "nlp.upload.loaded": "Yüklendi — NLP için STT çalıştırılıyor.",
+  "nlp.upload.processing": "Harici ses işleniyor: STT → duygu…",
+  "nlp.source.upload":
+    "Kaynak: harici yükleme · STT → duygu hazır · NLP / OpenCode çalıştırabilirsiniz",
+  "nlp.source.sample":
+    "Kaynak: SAMPLE_CATALOG → MOCK_TRANSCRIPTS · yükleme / Tek dosya STT gerekmez",
+  "nlp.source.lab": "Kaynak lab sonucu (Tek dosya sekmesi)",
+  "nlp.source.waiting":
+    "Kaynak bekleniyor: Common Voice örneği seçin, harici ses yükleyin veya Tek dosya sekmesinde transkribe edin.",
+  "nlp.errNeedSource":
+    "Önce bir Common Voice örneği seçin, harici ses yükleyin veya Tek dosya sekmesinde transkribe edin.",
+  "nlp.errUpload": "Harici ses yüklenirken / STT sırasında hata oluştu.",
+  "nlp.errSample": "Örnek MOCK_TRANSCRIPTS yüklenirken hata oluştu.",
 
   "stt.title": "Yerel STT motoru",
   "stt.tools": "araç",
@@ -469,6 +499,23 @@ const en: Dict = {
     "No valid audio file found. Try WAV, MP3, or M4A.",
   "upload.unsupported": "Unsupported type. Upload WAV / MP3 / M4A.",
   "upload.loaded": "Loaded into the main player.",
+
+  "nlp.upload.title": "Upload external audio",
+  "nlp.upload.hint":
+    "Drop or pick a WAV/MP3/M4A on the NLP tab. After STT, sentiment and browser NLP run on the same transcript.",
+  "nlp.upload.loaded": "Loaded — running STT for NLP.",
+  "nlp.upload.processing": "Processing external audio: STT → sentiment…",
+  "nlp.source.upload":
+    "Source: external upload · STT → sentiment ready · you can run NLP / OpenCode",
+  "nlp.source.sample":
+    "Source: SAMPLE_CATALOG → MOCK_TRANSCRIPTS · no upload / Single-file STT required",
+  "nlp.source.lab": "Source: lab result (Single-file tab)",
+  "nlp.source.waiting":
+    "Waiting for a source: pick a Common Voice sample, upload external audio, or transcribe on the Single-file tab.",
+  "nlp.errNeedSource":
+    "First pick a Common Voice sample, upload external audio, or transcribe on the Single-file tab.",
+  "nlp.errUpload": "Error while uploading external audio / running STT.",
+  "nlp.errSample": "Error loading sample MOCK_TRANSCRIPTS.",
 
   "stt.title": "Local STT engine",
   "stt.tools": "tools",
@@ -645,6 +692,23 @@ const fr: Dict = {
   "upload.unsupported": "Type non pris en charge. Importez WAV / MP3 / M4A.",
   "upload.loaded": "Chargé dans le lecteur principal.",
 
+  "nlp.upload.title": "Importer un audio externe",
+  "nlp.upload.hint":
+    "Déposez ou choisissez un WAV/MP3/M4A dans l’onglet NLP. Après le STT, le sentiment et le NLP navigateur s’appliquent au même transcript.",
+  "nlp.upload.loaded": "Chargé — STT en cours pour le NLP.",
+  "nlp.upload.processing": "Traitement audio externe : STT → sentiment…",
+  "nlp.source.upload":
+    "Source : import externe · STT → sentiment prêt · vous pouvez lancer NLP / OpenCode",
+  "nlp.source.sample":
+    "Source : SAMPLE_CATALOG → MOCK_TRANSCRIPTS · pas besoin d’import / STT Fichier unique",
+  "nlp.source.lab": "Source : résultat du lab (onglet Fichier unique)",
+  "nlp.source.waiting":
+    "En attente d’une source : choisissez un échantillon Common Voice, importez un audio externe ou transcrivez dans l’onglet Fichier unique.",
+  "nlp.errNeedSource":
+    "Choisissez d’abord un échantillon Common Voice, importez un audio externe ou transcrivez dans l’onglet Fichier unique.",
+  "nlp.errUpload": "Erreur lors de l’import audio / du STT.",
+  "nlp.errSample": "Erreur lors du chargement de MOCK_TRANSCRIPTS.",
+
   "stt.title": "Moteur STT local",
   "stt.tools": "outils",
   "stt.aria": "Sélection du moteur STT",
@@ -811,6 +875,23 @@ const cn: Dict = {
   "upload.unsupported": "不支持的类型。请上传 WAV / MP3 / M4A。",
   "upload.loaded": "已加载到主播放器。",
 
+  "nlp.upload.title": "上传外部音频",
+  "nlp.upload.hint":
+    "在 NLP 选项卡拖放或选择 WAV/MP3/M4A。STT 后，情感与浏览器 NLP 基于同一转写运行。",
+  "nlp.upload.loaded": "已加载 — 正在为 NLP 运行 STT。",
+  "nlp.upload.processing": "正在处理外部音频：STT → 情感…",
+  "nlp.source.upload":
+    "来源：外部上传 · STT → 情感已就绪 · 可运行 NLP / OpenCode",
+  "nlp.source.sample":
+    "来源：SAMPLE_CATALOG → MOCK_TRANSCRIPTS · 无需上传 / 单文件 STT",
+  "nlp.source.lab": "来源：实验室结果（单文件选项卡）",
+  "nlp.source.waiting":
+    "等待来源：选择 Common Voice 样本、上传外部音频，或在单文件选项卡转写。",
+  "nlp.errNeedSource":
+    "请先选择 Common Voice 样本、上传外部音频，或在单文件选项卡转写。",
+  "nlp.errUpload": "上传外部音频 / 运行 STT 时出错。",
+  "nlp.errSample": "加载样本 MOCK_TRANSCRIPTS 时出错。",
+
   "stt.title": "本地 STT 引擎",
   "stt.tools": "工具",
   "stt.aria": "STT 引擎选择",
@@ -975,6 +1056,23 @@ const jp: Dict = {
   "upload.invalid": "有効な音声がありません。WAV、MP3、M4A を試してください。",
   "upload.unsupported": "未対応の形式です。WAV / MP3 / M4A をアップロード。",
   "upload.loaded": "メインプレーヤーに読み込みました。",
+
+  "nlp.upload.title": "外部音声をアップロード",
+  "nlp.upload.hint":
+    "NLP タブで WAV/MP3/M4A をドロップまたは選択。STT 後、感情とブラウザ NLP は同じ文字起こしで動きます。",
+  "nlp.upload.loaded": "読み込み済み — NLP 用に STT を実行中。",
+  "nlp.upload.processing": "外部音声を処理中：STT → 感情…",
+  "nlp.source.upload":
+    "ソース：外部アップロード · STT → 感情準備完了 · NLP / OpenCode を実行できます",
+  "nlp.source.sample":
+    "ソース：SAMPLE_CATALOG → MOCK_TRANSCRIPTS · アップロード / 単一ファイル STT 不要",
+  "nlp.source.lab": "ソース：ラボ結果（単一ファイルタブ）",
+  "nlp.source.waiting":
+    "ソース待ち：Common Voice サンプルを選ぶ、外部音声をアップロード、または単一ファイルタブで文字起こし。",
+  "nlp.errNeedSource":
+    "先に Common Voice サンプルを選ぶ、外部音声をアップロード、または単一ファイルタブで文字起こししてください。",
+  "nlp.errUpload": "外部音声のアップロード / STT 中にエラーが発生しました。",
+  "nlp.errSample": "サンプル MOCK_TRANSCRIPTS の読み込み中にエラーが発生しました。",
 
   "stt.title": "ローカル STT エンジン",
   "stt.tools": "ツール",
@@ -1142,6 +1240,23 @@ const ar: Dict = {
   "upload.invalid": "لم يُعثر على صوت صالح. جرّب WAV أو MP3 أو M4A.",
   "upload.unsupported": "نوع غير مدعوم. ارفع WAV / MP3 / M4A.",
   "upload.loaded": "حُمّل إلى المشغّل الرئيسي.",
+
+  "nlp.upload.title": "رفع صوت خارجي",
+  "nlp.upload.hint":
+    "أسقط أو اختر WAV/MP3/M4A في تبويب NLP. بعد التحويل، يعمل تحليل المشاعر وNLP المتصفح على نفس النص.",
+  "nlp.upload.loaded": "حُمّل — جارٍ تشغيل STT لـ NLP.",
+  "nlp.upload.processing": "جارٍ معالجة الصوت الخارجي: STT → مشاعر…",
+  "nlp.source.upload":
+    "المصدر: رفع خارجي · STT → المشاعر جاهزة · يمكنك تشغيل NLP / OpenCode",
+  "nlp.source.sample":
+    "المصدر: SAMPLE_CATALOG → MOCK_TRANSCRIPTS · لا حاجة للرفع / STT الملف الواحد",
+  "nlp.source.lab": "المصدر: نتيجة المختبر (تبويب الملف الواحد)",
+  "nlp.source.waiting":
+    "بانتظار مصدر: اختر عيّنة Common Voice، أو ارفع صوتًا خارجيًا، أو انسخ في تبويب الملف الواحد.",
+  "nlp.errNeedSource":
+    "اختر أولًا عيّنة Common Voice، أو ارفع صوتًا خارجيًا، أو انسخ في تبويب الملف الواحد.",
+  "nlp.errUpload": "خطأ أثناء رفع الصوت الخارجي / تشغيل STT.",
+  "nlp.errSample": "خطأ أثناء تحميل عيّنة MOCK_TRANSCRIPTS.",
 
   "stt.title": "محرّك STT محلي",
   "stt.tools": "أدوات",
