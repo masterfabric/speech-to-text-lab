@@ -197,13 +197,14 @@ export function analyzeSentiment(text: string): SentimentResult {
   });
 
   // Align emotion with polarity when scores are flat.
-  // Keep explicit «nötr» when polarity is nötr so upload/report UI surfaces it.
-  if (best < 0.2) {
+  // Always surface explicit «nötr» when polarity is nötr (upload skorlama UX).
+  if (label === "nötr") {
+    emotion = "nötr";
+    emotionScores.nötr = Math.max(emotionScores.nötr, best, 0.35);
+  } else if (best < 0.2) {
     if (label === "olumlu") emotion = "memnun";
     else if (label === "olumsuz") emotion = "gergin";
     else emotion = "nötr";
-  } else if (label === "nötr" && emotionScores.nötr >= best) {
-    emotion = "nötr";
   }
 
   const confidence = Math.min(

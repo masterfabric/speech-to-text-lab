@@ -19,14 +19,26 @@ export {
 } from "./stt-modes";
 
 /**
+ * Web Speech cannot consume blob:/file: uploads (mic-only in most browsers).
+ * Skipping avoids a long empty wait that looks like a timeout on telephony MP3s.
+ */
+export function isFileBackedAudioUrl(audioUrl?: string | null): boolean {
+  if (!audioUrl) return false;
+  return audioUrl.startsWith("blob:") || audioUrl.startsWith("file:");
+}
+
+/**
  * Attempt Web Speech API recognition.
  * Many browsers only support microphone input; on failure callers fall back to mock ASR.
+ * File/blob uploads short-circuit immediately (no 12s hang on long 8 kHz clips).
  */
 export async function tryWebSpeechFromAudio(
   audioUrl: string,
   language = "tr-TR"
 ): Promise<{ text: string; confidence: number } | null> {
   if (!supportsWebSpeech()) return null;
+  // Uploaded telephony / local files: do not block skorlama on mic-only ASR.
+  if (isFileBackedAudioUrl(audioUrl)) return null;
 
   const SpeechRecognitionCtor =
     (
@@ -75,7 +87,7 @@ export async function tryWebSpeechFromAudio(
       } else {
         finish(null);
       }
-    }, 12000);
+    }, 4000);
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -245,6 +257,19 @@ export async function runLabPipeline(options: {
     );
   }
 
+  // Never leave uploads with an empty transcript — skorlama needs text.
+  if (!transcript.text?.trim()) {
+    const fallback = mockTranscript(
+      options.fileName,
+      options.durationSec,
+      options.sampleRate
+    );
+    transcript = {
+      ...fallback,
+      source: transcript.source,
+    };
+  }
+
   const metrics = computeMetricsFromWords({
     words: transcript.words,
     durationSec: options.durationSec,
@@ -252,7 +277,8 @@ export async function runLabPipeline(options: {
     text: transcript.text,
   });
 
-  const sentiment = analyzeSentiment(transcript.text);
+  // Always run sentiment — including nötr / score 0 for quiet or neutral clips.
+  const sentiment = analyzeSentiment(transcript.text || "");
 
   const reference = resolveReferenceText(options.fileName);
   const wer = reference

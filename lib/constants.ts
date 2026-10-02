@@ -382,12 +382,14 @@ export const MOCK_TRANSCRIPTS: Record<
     language: "tr-TR",
   },
   /**
-   * Unknown / externally uploaded demo files (no SAMPLE_CATALOG match).
-   * Neutral call-center style text so offline sentiment still yields
-   * polarity (nötr) + score in the report UI — not a "missing transcript" stub.
+   * Unknown / externally uploaded demo files (no SAMPLE_CATALOG match),
+   * including long 8 kHz telephony MP3s. Neutral call-center style text so
+   * offline sentiment always yields polarity (nötr) + numeric score — never
+   * an empty / "missing transcript" stub that blanks the skorlama UI.
    */
   default: {
-    text: "Merhaba, görüşmeye başlıyoruz. Konuşma kayıt altına alınmaktadır. Bugün yalnızca adres ve kayıt numarası teyidi yapacağız. İşlem sırasına alındı.",
+    text:
+      "Merhaba, görüşmeye başlıyoruz. Konuşma kayda alınmaktadır. Bugün yalnızca adres ve numara doğrulaması yapılacaktır. İşlem sıraya alınmıştır. Bilgilendirme tamamlandı.",
     language: "tr-TR",
   },
 };

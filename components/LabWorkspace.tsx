@@ -40,6 +40,8 @@ export function LabWorkspace() {
   const [liveStages, setLiveStages] = useState<PipelineStage[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Soft decode/probe notice — must not block skorlama UI after process. */
+  const [decodeWarning, setDecodeWarning] = useState<string | null>(null);
   const [result, setResult] = useState<LabResult | null>(null);
   /** Blob URL for the current upload — owned here; revoke only when replacing or unmounting. */
   const objectUrlRef = useRef<string | null>(null);
@@ -96,6 +98,7 @@ export function LabWorkspace() {
   const loadSample = useCallback(
     async (name: string) => {
       setError(null);
+      setDecodeWarning(null);
       setResult(null);
       setPlayedOnce(false);
       setCurrentTime(0);
@@ -112,8 +115,12 @@ export function LabWorkspace() {
         const info = await decodeAudioFile(blob);
         setDurationSec(info.durationSec);
         setSampleRate(info.sampleRate);
+        if (info.warning) setDecodeWarning(info.warning);
       } catch (e) {
-        setError(
+        // Keep URL playable; still allow mock STT + skorlama with a default duration.
+        setDurationSec(8);
+        setSampleRate(16000);
+        setDecodeWarning(
           e instanceof Error
             ? e.message
             : t("lab.errSampleLoad")
@@ -126,6 +133,7 @@ export function LabWorkspace() {
   const onUpload = useCallback(
     async (file: File) => {
       setError(null);
+      setDecodeWarning(null);
       setResult(null);
       setPlayedOnce(false);
       setCurrentTime(0);
@@ -137,8 +145,12 @@ export function LabWorkspace() {
         const info = await decodeAudioFile(file);
         setDurationSec(info.durationSec);
         setSampleRate(info.sampleRate);
+        if (info.warning) setDecodeWarning(info.warning);
       } catch {
-        setError(t("lab.errDecode"));
+        // decodeAudioFile is designed not to throw; keep skorlama path alive anyway.
+        setDurationSec(8);
+        setSampleRate(8000);
+        setDecodeWarning(t("lab.errDecode"));
       }
     },
     [assignUploadObjectUrl, t]
@@ -177,14 +189,18 @@ export function LabWorkspace() {
       }
       const lab = await runLabPipeline({
         fileName,
-        durationSec: durationSec || 8,
-        sampleRate,
+        durationSec: durationSec > 0 ? durationSec : 8,
+        sampleRate: sampleRate > 0 ? sampleRate : 8000,
         mode,
         audioUrl,
         onPipelineStage: (stage) => {
           setLiveStages((prev) => [...(prev ?? []), stage]);
         },
       });
+      // Guarantee skorlama fields even if a future pipeline regresses.
+      if (!lab.sentiment) {
+        throw new Error(t("lab.errTranscribe"));
+      }
       setResult(lab);
       if (lab.pipelineStages) setLiveStages(lab.pipelineStages);
     } catch (e) {
@@ -571,6 +587,15 @@ export function LabWorkspace() {
         ) : null}
 
         <MetricsDashboard metrics={result?.metrics ?? null} loading={loading} />
+        {decodeWarning ? (
+          <p
+            data-testid="audio-decode-warning"
+            className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900"
+            role="status"
+          >
+            {decodeWarning}
+          </p>
+        ) : null}
         <TranscriptPanel
           transcript={result?.transcript ?? null}
           loading={loading}
