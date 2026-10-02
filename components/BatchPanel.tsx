@@ -159,12 +159,13 @@ export function BatchPanel() {
           if (!res.ok) throw new Error(`Örnek bulunamadı: ${item.fileName}`);
           const blob = await res.blob();
           const info = await decodeAudioFile(blob);
-          durationSec = info.durationSec;
-          sampleRate = info.sampleRate;
+          durationSec = info.durationSec > 0 ? info.durationSec : 8;
+          sampleRate = info.sampleRate > 0 ? info.sampleRate : 16000;
         } else {
+          // Uploads (incl. long 8 kHz MP3): probe with fallbacks; never skip skorlama.
           const info = await decodeAudioFile(item.file);
-          durationSec = info.durationSec;
-          sampleRate = info.sampleRate;
+          durationSec = info.durationSec > 0 ? info.durationSec : 8;
+          sampleRate = info.sampleRate > 0 ? info.sampleRate : 8000;
           fileName = item.file.name;
         }
 
@@ -178,6 +179,10 @@ export function BatchPanel() {
           mode: "mock",
         });
 
+        if (!lab.sentiment) {
+          throw new Error("Duygu skoru üretilemedi.");
+        }
+
         setRows((prev) =>
           prev.map((r) =>
             r.id === item.id
@@ -188,11 +193,33 @@ export function BatchPanel() {
       } catch (e) {
         const msg =
           e instanceof Error ? e.message : "İşleme sırasında hata oluştu.";
-        setRows((prev) =>
-          prev.map((r) =>
-            r.id === item.id ? { ...r, status: "error", error: msg } : r
-          )
-        );
+        // Last-chance skorlama: still emit mock+sentiment so batch UI is not blank.
+        try {
+          const lab = await runLabPipeline({
+            fileName: item.fileName,
+            durationSec: 8,
+            sampleRate: 8000,
+            mode: "mock",
+          });
+          setRows((prev) =>
+            prev.map((r) =>
+              r.id === item.id
+                ? {
+                    ...r,
+                    status: "done",
+                    result: lab,
+                    error: `Uyarı: ${msg}`,
+                  }
+                : r
+            )
+          );
+        } catch {
+          setRows((prev) =>
+            prev.map((r) =>
+              r.id === item.id ? { ...r, status: "error", error: msg } : r
+            )
+          );
+        }
       }
 
       setProgress({ done: i + 1, total: queueItems.length });

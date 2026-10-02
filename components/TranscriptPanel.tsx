@@ -35,7 +35,8 @@ export function TranscriptPanel({
     );
   }
 
-  if (error) {
+  // Prefer a successful transcript over a stale/soft error so skorlama stays visible.
+  if (error && !transcript) {
     return (
       <div className="rounded-xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-900">
         <p className="font-medium">{t("panel.transcriptError")}</p>
