@@ -11,6 +11,7 @@ import {
   Smile,
 } from "lucide-react";
 import type { SentimentResult } from "@/lib/sentiment";
+import { useLocale } from "@/components/LocaleProvider";
 
 type SentimentPanelProps = {
   sentiment: SentimentResult | null;
@@ -34,6 +35,8 @@ const emotionIcon: Record<SentimentResult["emotion"], LucideIcon> = {
 };
 
 export function SentimentPanel({ sentiment, loading }: SentimentPanelProps) {
+  const { t } = useLocale();
+
   if (loading) {
     return (
       <div className="h-40 animate-pulse rounded-xl border border-slate-200 bg-slate-100" />
@@ -43,8 +46,7 @@ export function SentimentPanel({ sentiment, loading }: SentimentPanelProps) {
   if (!sentiment) {
     return (
       <div className="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
-        Transkripsiyon sonrası duygu / duygu durumu (olumlu · nötr · olumsuz +
-        sakin/gergin…) burada görünür.
+        {t("panel.sentimentEmpty")}
       </div>
     );
   }
@@ -59,10 +61,10 @@ export function SentimentPanel({ sentiment, loading }: SentimentPanelProps) {
     <div className="space-y-4 rounded-xl border border-tuik/30 bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-tuik">
-          Duygu / duygu durumu analizi
+          {t("panel.sentiment")}
         </h3>
         <span className="text-[10px] uppercase tracking-wider text-slate-500">
-          Türkçe sözlük · çevrimdışı
+          {t("panel.sentimentOffline")}
         </span>
       </div>
 
@@ -77,7 +79,7 @@ export function SentimentPanel({ sentiment, loading }: SentimentPanelProps) {
           {sentiment.emotion}
         </span>
         <span className="text-xs text-slate-600">
-          Skor: {sentiment.score.toFixed(2)} · Güven:{" "}
+          {t("panel.score")}: {sentiment.score.toFixed(2)} · {t("panel.confidence")}:{" "}
           {Math.round(sentiment.confidence * 100)}%
         </span>
       </div>

@@ -3,6 +3,7 @@
 import { ArrowDown, Upload } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { isAudioFile } from "@/lib/audio-utils";
+import { useLocale } from "@/components/LocaleProvider";
 
 type AudioUploaderProps = {
   onSelectSample: (fileName: string) => void;
@@ -31,6 +32,8 @@ export function AudioUploader({
   onUpload,
   disabled,
 }: AudioUploaderProps) {
+  const { t } = useLocale();
+
   const [dragging, setDragging] = useState(false);
   const dragDepth = useRef(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -89,13 +92,13 @@ export function AudioUploader({
 
       const file = pickAudioFile(e.dataTransfer);
       if (!file) {
-        setHint("Geçerli bir ses dosyası bulunamadı. WAV, MP3 veya M4A deneyin.");
+        setHint(t("upload.invalid"));
         return;
       }
       onUpload(file);
-      setHint(`Yüklendi: ${file.name} — ana oynatıcıya yüklendi.`);
+      setHint(`${t("upload.loaded")} (${file.name})`);
     },
-    [disabled, onSelectSample, onUpload, resetDrag]
+    [disabled, onSelectSample, onUpload, resetDrag, t]
   );
 
   const handleFileChange = useCallback(
@@ -103,14 +106,14 @@ export function AudioUploader({
       const file = e.target.files?.[0];
       if (!file) return;
       if (!isAudioFile(file)) {
-        setHint(`Desteklenmeyen tür: ${file.name}. WAV / MP3 / M4A yükleyin.`);
+        setHint(`${t("upload.unsupported")} (${file.name})`);
         return;
       }
       onUpload(file);
-      setHint(`Yüklendi: ${file.name} — ana oynatıcıya yüklendi.`);
+      setHint(`${t("upload.loaded")} (${file.name})`);
       e.target.value = "";
     },
-    [onUpload]
+    [onUpload, t]
   );
 
   return (
@@ -124,16 +127,15 @@ export function AudioUploader({
     >
       <div>
         <h3 className="text-sm font-semibold tracking-wide text-tuik">
-          Dosya yükle
+          {t("upload.title")}
         </h3>
         <p className="mt-1 text-xs leading-relaxed text-slate-600">
-          Örnekler Detay görünümündeki yatay katalogda. Buraya kendi
-          WAV/MP3/M4A dosyanızı sürükleyin.
+          {t("upload.hint")}
         </p>
         <div
           role="button"
           tabIndex={0}
-          aria-label="Ses dosyasını buraya sürükleyin"
+          aria-label={t("upload.drop")}
           onClick={() => {
             if (!disabled) fileInputRef.current?.click();
           }}
@@ -169,13 +171,13 @@ export function AudioUploader({
               dragging ? "text-tuik-deep" : "text-slate-800"
             }`}
           >
-            Ses dosyasını buraya sürükleyin
+            {t("upload.drop")}
           </span>
           <span className="mt-1 text-xs text-slate-500">
-            WAV · MP3 · M4A — tıklayarak da seçebilirsiniz
+            {t("upload.formats")}
           </span>
           <span className="mt-1 text-[11px] text-slate-400">
-            Yalnızca demo / sentetik ses — kişisel veri yüklemeyin
+            {t("upload.privacy")}
           </span>
           <input
             ref={fileInputRef}
@@ -188,13 +190,13 @@ export function AudioUploader({
         </div>
         {dragging ? (
           <p className="mt-2 text-center text-xs font-medium text-tuik">
-            Dosyayı bırakın — ana oynatıcıya ve boru hattına yüklenecek
+            {t("upload.release")}
           </p>
         ) : null}
         {hint ? (
           <p
             className={`mt-2 text-center text-xs ${
-              hint.startsWith("Yüklendi")
+              hint.includes("(") && !hint.includes(t("upload.invalid").slice(0, 12)) && !hint.includes(t("upload.unsupported").slice(0, 12))
                 ? "font-medium text-tuik-dim"
                 : "font-medium text-amber-800"
             }`}

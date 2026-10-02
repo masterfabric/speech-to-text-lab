@@ -21,6 +21,7 @@ import {
   downloadBlob,
 } from "@/lib/report-export";
 import type { LabResult } from "@/lib/types";
+import { useLocale } from "@/components/LocaleProvider";
 
 type ReportPanelProps = {
   result: LabResult | null;
@@ -28,6 +29,7 @@ type ReportPanelProps = {
 };
 
 export function ReportPanel({ result, loading }: ReportPanelProps) {
+  const { t } = useLocale();
   const [copied, setCopied] = useState(false);
 
   if (loading) {
@@ -55,11 +57,10 @@ export function ReportPanel({ result, loading }: ReportPanelProps) {
           aria-hidden
         />
         <p className="mt-3 text-sm font-medium text-slate-800">
-          Analiz raporu henüz hazır değil
+          {t("panel.reportEmpty")}
         </p>
         <p className="mt-1 text-xs text-slate-500">
-          Transkript, duygu skorları, süre, WER-ish metrikler ve PDF / TXT / JSON
-          dışa aktarma burada toplanır.
+          {t("panel.reportEmptyHint")}
         </p>
       </div>
     );
@@ -74,7 +75,7 @@ export function ReportPanel({ result, loading }: ReportPanelProps) {
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
-      alert("Kopyalama başarısız. Metni aşağıdan seçip kopyalayın.");
+      alert(t("panel.copyFailed"));
     }
   };
 
@@ -108,10 +109,10 @@ export function ReportPanel({ result, loading }: ReportPanelProps) {
               </span>
               <div>
                 <h3 className="text-lg font-semibold text-tuik-dim">
-                  Analiz raporu
+                  {t("panel.report")}
                 </h3>
                 <p className="text-xs text-slate-600">
-                  Tek dosya özeti · transkript · duygu · WER · dışa aktarım
+                  {t("panel.reportSubtitle")}
                 </p>
               </div>
             </div>
@@ -130,7 +131,7 @@ export function ReportPanel({ result, loading }: ReportPanelProps) {
             <ExportBtn
               onClick={() => void copy()}
               icon={<ClipboardCopy className="h-3.5 w-3.5" aria-hidden />}
-              label={copied ? "Kopyalandı" : "Panoya kopyala"}
+              label={copied ? t("panel.copied") : t("panel.copyClipboard")}
               variant="ghost"
             />
             <ExportBtn
@@ -156,19 +157,19 @@ export function ReportPanel({ result, loading }: ReportPanelProps) {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Stat
             icon={<Clock3 className="h-3.5 w-3.5" aria-hidden />}
-            label="Süre"
+            label={t("panel.duration")}
             value={formatDuration(metrics.durationSec)}
             hint={`${metrics.durationSec.toFixed(2)} sn · ${Math.round(metrics.sampleRate)} Hz`}
           />
           <Stat
             icon={<HeartPulse className="h-3.5 w-3.5" aria-hidden />}
-            label="Polarite"
+            label={t("panel.polarity")}
             value={sentiment.label}
-            hint={`Duygu: ${sentiment.emotion} · skor ${sentiment.score.toFixed(2)}`}
+            hint={`${t("panel.emotion")}: ${sentiment.emotion} · ${t("panel.score")} ${sentiment.score.toFixed(2)}`}
           />
           <Stat
             icon={<Activity className="h-3.5 w-3.5" aria-hidden />}
-            label={wer.hasReference ? "WER" : "Yaklaşık doğruluk"}
+            label={wer.hasReference ? "WER" : t("panel.approxAccuracy")}
             value={
               wer.hasReference
                 ? `${(wer.wer * 100).toFixed(1)}%`
@@ -176,13 +177,13 @@ export function ReportPanel({ result, loading }: ReportPanelProps) {
             }
             hint={
               wer.hasReference
-                ? `Doğruluk ${(wer.wordAccuracy * 100).toFixed(1)}%`
-                : "güven proxy"
+                ? `${t("panel.accuracy")} ${(wer.wordAccuracy * 100).toFixed(1)}%`
+                : t("panel.proxyHint")
             }
           />
           <Stat
             icon={<ShieldAlert className="h-3.5 w-3.5" aria-hidden />}
-            label="ASR güven"
+            label={t("panel.asrConfidence")}
             value={`${Math.round(transcript.confidence * 100)}%`}
             hint={transcript.source}
           />
@@ -191,7 +192,7 @@ export function ReportPanel({ result, loading }: ReportPanelProps) {
         <section className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
           <SectionTitle
             icon={<MessageSquareText className="h-3.5 w-3.5" aria-hidden />}
-            title="Transkript özeti"
+            title={t("panel.transcriptSummary")}
           />
           <p className="mt-2 text-sm leading-relaxed text-slate-900">
             {transcript.text}
@@ -202,7 +203,7 @@ export function ReportPanel({ result, loading }: ReportPanelProps) {
           <section className="rounded-xl border border-slate-200 bg-white p-4 text-sm">
             <SectionTitle
               icon={<HeartPulse className="h-3.5 w-3.5" aria-hidden />}
-              title="Duygu skorları"
+              title={t("panel.emotionScores")}
             />
             <ul className="mt-2 space-y-1.5 text-slate-700">
               <li>
@@ -221,7 +222,7 @@ export function ReportPanel({ result, loading }: ReportPanelProps) {
           <section className="rounded-xl border border-slate-200 bg-white p-4 text-sm">
             <SectionTitle
               icon={<Activity className="h-3.5 w-3.5" aria-hidden />}
-              title="WER-ish / kalite"
+              title={t("panel.werQuality")}
             />
             <ul className="mt-2 space-y-1.5 text-slate-700">
               {wer.hasReference ? (
@@ -236,7 +237,7 @@ export function ReportPanel({ result, loading }: ReportPanelProps) {
                   </li>
                 </>
               ) : (
-                <li>Referans yok — proxy doğruluk kullanıldı</li>
+                <li>{t("panel.noReference")}</li>
               )}
               <li className="text-xs leading-relaxed text-slate-500">
                 {wer.noteTr}
@@ -247,7 +248,7 @@ export function ReportPanel({ result, loading }: ReportPanelProps) {
 
         <details className="rounded-xl border border-slate-200 bg-slate-50 p-3">
           <summary className="cursor-pointer text-xs font-medium text-slate-700">
-            Dışa aktarım önizlemesi (düz metin · TXT ile aynı)
+            {t("panel.exportPreview")}
           </summary>
           <pre className="mt-2 max-h-52 overflow-auto whitespace-pre-wrap font-mono text-[11px] text-slate-700">
             {exportText}

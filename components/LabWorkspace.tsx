@@ -18,16 +18,19 @@ import { decodeAudioFile, isAudioFile } from "@/lib/audio-utils";
 import { SAMPLE_CATALOG, sampleAudioSources } from "@/lib/constants";
 import { runLabPipeline, sttModeHasStages, type SttMode } from "@/lib/stt-pipeline";
 import type { LabResult, PipelineStage } from "@/lib/types";
-
-const PIPELINE_STEPS = [
-  { id: 1, label: "Yükle / Örnek" },
-  { id: 2, label: "Dinle" },
-  { id: 3, label: "Transkribe" },
-  { id: 4, label: "Duygu" },
-  { id: 5, label: "Rapor" },
-] as const;
+import { useLocale } from "@/components/LocaleProvider";
 
 export function LabWorkspace() {
+  const { t } = useLocale();
+
+  const PIPELINE_STEPS = [
+    { id: 1, label: t("lab.step.upload") },
+    { id: 2, label: t("lab.step.listen") },
+    { id: 3, label: t("lab.step.transcribe") },
+    { id: 4, label: t("lab.step.sentiment") },
+    { id: 5, label: t("lab.step.report") },
+  ] as const;
+
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [selectedSample, setSelectedSample] = useState<string | null>(null);
@@ -82,7 +85,7 @@ export function LabWorkspace() {
       setAudioUrl(url);
       try {
         const res = await fetch(url);
-        if (!res.ok) throw new Error("Örnek dosya bulunamadı");
+        if (!res.ok) throw new Error(t("lab.errSampleMissing"));
         const blob = await res.blob();
         const info = await decodeAudioFile(blob);
         setDurationSec(info.durationSec);
@@ -91,11 +94,11 @@ export function LabWorkspace() {
         setError(
           e instanceof Error
             ? e.message
-            : "Örnek ses yüklenirken hata oluştu. scripts/generate-samples.sh çalıştırın."
+            : t("lab.errSampleLoad")
         );
       }
     },
-    [objectUrl]
+    [objectUrl, t]
   );
 
   const onUpload = useCallback(
@@ -115,7 +118,7 @@ export function LabWorkspace() {
         setDurationSec(info.durationSec);
         setSampleRate(info.sampleRate);
       } catch {
-        setError("Ses dosyası çözümlenemedi. WAV/MP3 deneyin.");
+        setError(t("lab.errDecode"));
       }
     },
     [objectUrl]
@@ -127,7 +130,7 @@ export function LabWorkspace() {
 
   const transcribe = useCallback(async () => {
     if (!fileName || !audioUrl) {
-      setError("Önce bir örnek seçin veya dosya yükleyin.");
+      setError(t("lab.errSelectFirst"));
       return;
     }
     setLoading(true);
@@ -151,12 +154,12 @@ export function LabWorkspace() {
       if (lab.pipelineStages) setLiveStages(lab.pipelineStages);
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "Transkripsiyon sırasında hata oluştu."
+        e instanceof Error ? e.message : t("lab.errTranscribe")
       );
     } finally {
       setLoading(false);
     }
-  }, [audioUrl, durationSec, fileName, mode, sampleRate]);
+  }, [audioUrl, durationSec, fileName, mode, sampleRate, t]);
 
   useEffect(() => {
     const first = SAMPLE_CATALOG[0]?.fileName;
@@ -227,19 +230,19 @@ export function LabWorkspace() {
         }
       }
       if (!file) {
-        alert("Lütfen geçerli bir ses dosyası bırakın (WAV/MP3/M4A).");
+        alert(t("lab.dropInvalid"));
         return;
       }
       void onUpload(file);
     },
-    [loading, onUpload, resetPageDrag]
+    [loading, onUpload, resetPageDrag, t]
   );
 
   return (
     <div className="space-y-6">
       <div
         role="tablist"
-        aria-label="Çalışma alanı modu"
+        aria-label={t("lab.ariaWorkspace")}
         className="mx-auto flex max-w-7xl gap-1 rounded-xl border border-tuik/30 bg-white p-1 shadow-sm"
       >
         <button
@@ -254,7 +257,7 @@ export function LabWorkspace() {
           }`}
         >
           <FileAudio className="h-4 w-4" aria-hidden />
-          Tek dosya
+          {t("lab.tab.single")}
         </button>
         <button
           type="button"
@@ -268,7 +271,7 @@ export function LabWorkspace() {
           }`}
         >
           <Layers className="h-4 w-4" aria-hidden />
-          Toplu işleme
+          {t("lab.tab.batch")}
         </button>
         <button
           type="button"
@@ -283,7 +286,7 @@ export function LabWorkspace() {
           }`}
         >
           <Brain className="h-4 w-4" aria-hidden />
-          NLP / OpenCode
+          {t("lab.tab.nlp")}
         </button>
       </div>
 
@@ -310,9 +313,9 @@ export function LabWorkspace() {
         <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-tuik-soft/80 backdrop-blur-[1px]">
           <div className="rounded-xl border-2 border-dashed border-tuik bg-white px-6 py-4 text-center shadow-lg shadow-tuik/15">
             <p className="text-sm font-semibold text-tuik-deep">
-              Ses dosyasını buraya sürükleyin
+              {t("lab.dropHere")}
             </p>
-            <p className="mt-1 text-xs text-slate-600">WAV · MP3 · M4A</p>
+            <p className="mt-1 text-xs text-slate-600">{t("lab.formats")}</p>
           </div>
         </div>
       ) : null}
@@ -369,8 +372,8 @@ export function LabWorkspace() {
           className="w-full rounded-xl bg-tuik px-4 py-3 text-sm font-semibold text-white transition hover:bg-tuik-dim disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading
-            ? "İşleniyor: STT → duygu → rapor…"
-            : "Transkribe et + duygu analizi"}
+            ? t("lab.transcribing")
+            : t("lab.transcribeBtn")}
         </button>
       </aside>
 
@@ -379,7 +382,7 @@ export function LabWorkspace() {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div
               role="group"
-              aria-label="Ses sahnesi görünümü"
+              aria-label={t("lab.ariaAudioView")}
               data-testid="audio-stage-view-toggle"
               className="inline-flex gap-0.5 rounded-lg border border-tuik/30 bg-white p-0.5 shadow-sm"
             >
@@ -395,7 +398,7 @@ export function LabWorkspace() {
                 }`}
               >
                 <PanelTop className="h-3.5 w-3.5" aria-hidden />
-                Minimal
+                {t("lab.viewMinimal")}
               </button>
               <button
                 type="button"
@@ -409,14 +412,14 @@ export function LabWorkspace() {
                 }`}
               >
                 <Rows3 className="h-3.5 w-3.5" aria-hidden />
-                Detay
+                {t("lab.viewDetail")}
               </button>
             </div>
             {fileName ? (
               <span className="rounded-md bg-tuik-soft px-2 py-1 text-[10px] font-medium text-tuik-dim ring-1 ring-tuik/30">
                 {fileName}
                 {durationSec > 0
-                  ? ` · ${durationSec.toFixed(1)} sn · ${Math.round(sampleRate)} Hz`
+                  ? ` · ${durationSec.toFixed(1)} ${t("lab.sec")} · ${Math.round(sampleRate)} Hz`
                   : ""}
               </span>
             ) : null}
@@ -432,7 +435,7 @@ export function LabWorkspace() {
                   compact
                   src={selectedSample ? null : audioUrl}
                   sources={selectedSample ? sampleSources : null}
-                  label={fileName ? `${fileName} oynatıcı` : "Ses oynatıcı"}
+                  label={fileName ? `${fileName}` : t("lab.playerLabel")}
                   onTimeUpdate={setCurrentTime}
                   onDurationChange={(d) => {
                     if (d > 0) setDurationSec(d);
@@ -462,10 +465,10 @@ export function LabWorkspace() {
                 <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
                   <div>
                     <h2 className="text-lg font-semibold text-tuik-dim">
-                      Ses oynatıcı
+                      {t("lab.playerTitle")}
                     </h2>
                     <p className="text-xs text-slate-600">
-                      Seçilen örneği dinleyin — WAV (PCM) + M4A (AAC) yedek kaynak
+                      {t("lab.playerHint")}
                     </p>
                   </div>
                   {fileName ? (
@@ -478,7 +481,7 @@ export function LabWorkspace() {
                   <AudioPlayer
                     src={selectedSample ? null : audioUrl}
                     sources={selectedSample ? sampleSources : null}
-                    label={fileName ? `${fileName} oynatıcı` : "Ses oynatıcı"}
+                    label={fileName ? `${fileName}` : t("lab.playerLabel")}
                     onTimeUpdate={setCurrentTime}
                     onDurationChange={(d) => {
                       if (d > 0) setDurationSec(d);
@@ -492,12 +495,12 @@ export function LabWorkspace() {
                 <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
                   <div>
                     <h2 className="text-lg font-semibold text-slate-900">
-                      Dalga formu
+                      {t("lab.waveformTitle")}
                     </h2>
                     <p className="text-xs text-slate-600">
-                      {fileName ?? "Dosya seçilmedi"}
+                      {fileName ?? t("lab.noFile")}
                       {durationSec > 0
-                        ? ` · ${durationSec.toFixed(2)} sn · ${Math.round(sampleRate)} Hz`
+                        ? ` · ${durationSec.toFixed(2)} ${t("lab.sec")} · ${Math.round(sampleRate)} Hz`
                         : ""}
                     </p>
                   </div>
@@ -537,8 +540,8 @@ export function LabWorkspace() {
 
         {result ? (
           <p className="text-xs text-slate-500">
-            İşlendi: {new Date(result.processedAt).toLocaleString("tr-TR")} · Kaynak:{" "}
-            {result.transcript.source} · Duygu: {result.sentiment.label}/
+            {t("lab.processed")}: {new Date(result.processedAt).toLocaleString()} · {t("lab.source")}:{" "}
+            {result.transcript.source} · {t("lab.sentiment")}: {result.sentiment.label}/
             {result.sentiment.emotion}
           </p>
         ) : null}

@@ -6,88 +6,119 @@
 
 <p align="center">
   <strong>Educational ALO 124 / TÜİK-style speech-to-text laboratory</strong><br />
-  End-to-end lab: <code>audio → STT → sentiment → report</code><br />
-  Synthetic / demo audio only · Local-first · Not an official TÜİK product
+  Synthetic and demo audio only · Not an official TÜİK product
 </p>
 
 <p align="center">
-  <a href="https://github.com/masterfabric/speech-to-text-lab/blob/main/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-ae1615?style=flat-square" /></a>
-  <a href="https://github.com/masterfabric/speech-to-text-lab"><img alt="Repo" src="https://img.shields.io/badge/github-masterfabric%2Fspeech--to--text--lab-111111?style=flat-square" /></a>
-  <img alt="Next.js" src="https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=nextdotjs&logoColor=white" />
+  <a href="https://github.com/masterfabric/speech-to-text-lab"><img alt="GitHub" src="https://img.shields.io/badge/GitHub-masterfabric%2Fspeech--to--text--lab-ae1615?style=flat-square&logo=github" /></a>
+  <img alt="License MIT" src="https://img.shields.io/badge/License-MIT-0a0a0a?style=flat-square" />
+  <img alt="Next.js" src="https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=nextdotjs" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white" />
-  <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black" />
-  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind-4-38BDF8?style=flat-square&logo=tailwindcss&logoColor=white" />
-  <img alt="Port" src="https://img.shields.io/badge/dev%20port-43123-ae1615?style=flat-square" />
-  <img alt="Privacy" src="https://img.shields.io/badge/PII-demo%20only-0a7a3e?style=flat-square" />
-  <img alt="STT modes" src="https://img.shields.io/badge/STT%20modes-5%20local%2Fdemo-ae1615?style=flat-square" />
-  <img alt="Locales" src="https://img.shields.io/badge/UI-TR%20%7C%20EN%20%7C%20FR%20%7C%20CN%20%7C%20JP%20%7C%20AR-111111?style=flat-square" />
+  <img alt="UI languages" src="https://img.shields.io/badge/UI-TR%20·%20EN%20·%20FR%20·%20CN%20·%20JP%20·%20AR-ae1615?style=flat-square" />
+  <img alt="Theme" src="https://img.shields.io/badge/Theme-TÜİK%20red%20%23ae1615-ae1615?style=flat-square" />
 </p>
 
 <p align="center">
-  <img src="docs/images/speech-to-text-lab-hero.png" alt="speech-to-text-lab hero banner" width="860" />
+  <img src="docs/images/speech-to-text-lab-hero.png" alt="speech-to-text-lab application hero — lab workspace with TÜİK branding" width="820" />
 </p>
 
-## Why this lab exists
+## About
 
-This repository is an **education laboratory** created under **AI transformation** and **AI literacy** training. It helps engineers and instructors walk through a call-center-style pipeline without touching real citizen data or paid cloud STT APIs for the default path.
+`speech-to-text-lab` is a **browser-based teaching lab** for call-center style audio workflows:
 
-The branding and workflows are inspired by **TÜİK ALO 124** teaching scenarios. The TÜİK logo is shown **only** for educational / demo context. This is **not** an official TÜİK product, endorsement, or production service.
+**audio → speech-to-text (STT) → sentiment / emotion → analysis report**
 
-## What you can do
+It was built under **AI transformation** and **AI literacy** training. The core lab runs locally with **synthetic / demo samples** — there are no real ALO 124 recordings and no citizen personal data in the repository. Paid cloud STT APIs are **not** required for the default Mock ASR path.
 
-| Area | What the lab demonstrates |
+> The TÜİK logo appears only in an educational / demo context. This repository is **not** an official TÜİK product, endorsement, or publication.
+
+### Who it is for
+
+- Instructors demonstrating STT + NLP pipelines without provisioning cloud keys
+- Analysts / representatives practicing on **demo** audio in a safe sandbox
+- Learners exploring VAD, keyword spotting, and hybrid decode stages visually
+
+## Features
+
+| Area | What you get |
 | --- | --- |
-| **Audio** | Upload or pick Common Voice TR–style samples; waveform player (Minimal = wave only) |
-| **STT** | Five selectable local/demo recognition modes |
-| **Language analysis** | Turkish-oriented sentiment / intent-style cues + optional browser NLP |
-| **Reporting** | TXT / JSON / PDF export, PDF preview, batch summary table |
-| **Agent bridge** | Optional desktop **OpenCode** CLI enrichment (model picker + install guide) |
-| **Teaching slides** | Reveal.js deck under `/slides` |
+| **Single-file lab** | Minimal (player + waveform) and Detail (catalog + cards) audio stages |
+| **Samples & upload** | Common Voice TR–style demos + local WAV / MP3 / M4A drop zone |
+| **STT modes** | Five educational engines (see below) |
+| **Sentiment** | Offline Turkish lexicon → polarity + emotion scores |
+| **Metrics & WER-ish** | Duration, speaking ratio, silence gaps, keyword hits, reference WER when available |
+| **Reports** | On-screen analysis + PDF / TXT / JSON export |
+| **Batch** | Multi-file processing panel |
+| **NLP / OpenCode** | Optional browser NLP + optional local **OpenCode** desktop CLI bridge |
+| **i18n** | Footer switcher **TR · EN · FR · CN · JP · AR** (Arabic sets `dir="rtl"`) |
+| **Onboarding** | Path `/onboarding`: splash → short tour → name + KVKK form (Web3Forms); **Approved** badge after accept; main lab gated until then |
+| **Theme** | Black / white + TÜİK red `#ae1615` · **Lucide** icons only (no emoji) |
+
+## Techniques & STT modes
+
+Educational engines (selectable in the sidebar) — labels may appear in Turkish in the engine cards themselves; behavior is mode-driven:
+
+| Mode | Idea |
+| --- | --- |
+| **Mock ASR** (recommended) | Deterministic offline transcripts for known demo files; ideal for metrics / sentiment / WER demos |
+| **Web Speech API** | Browser `SpeechRecognition` when available; falls back to Mock |
+| **Pipeline stages** | Visible path: VAD → features → mock decode |
+| **Energy / VAD + n-gram hybrid** | Explicitly labeled teaching hybrid (not Whisper); energy VAD + small Turkish n-gram scoring |
+| **Keyword spot + acoustic confidence** | Offline keyword scan + SNR-like confidence; full sentence text still MOCK for known samples |
+
+Related teaching surfaces: live **pipeline stage** cards, **waveform** scrubbing, and **word timings** tables.
 
 ## Architecture (high level)
 
 ```text
-┌─────────────┐   ┌──────────────────┐   ┌─────────────────┐   ┌──────────────┐
-│ Audio input │ → │ STT mode engine  │ → │ Sentiment / NLP │ → │ Report export│
-│ upload/CV   │   │ (5 local demos)  │   │ (+ OpenCode?)   │   │ TXT/JSON/PDF │
-└─────────────┘   └──────────────────┘   └─────────────────┘   └──────────────┘
+app/                  Next.js App Router (layout → AppShell client chrome)
+components/           Lab workspace, panels, footer, i18n + consent gate
+lib/
+  i18n.ts             Locale dictionaries + t(key)
+  consent.ts          localStorage consent + TODO hook for future form API POST
+  stt-pipeline.ts     Mode router → mock / web-speech / pipeline / hybrids
+  sentiment*.ts       Offline TR sentiment
+  export-pdf.ts       jsPDF reports
+public/samples/       Demo audio (generated / synced by scripts)
+slides/               Presentation deck (served separately)
 ```
 
-- **Frontend:** Next.js App Router, React 19, TypeScript, Tailwind CSS 4, Lucide icons  
-- **Audio UI:** WaveSurfer.js waveform (scrub on the wave in Minimal view)  
-- **PDF:** jsPDF + DejaVu fonts for Turkish glyphs  
-- **Optional agent:** local OpenCode CLI (`opencode run -m …`) streaming NDJSON into the lab  
+Client chrome (`LocaleProvider`, `ConsentProvider`, `SiteFooter`) wraps the server layout so language and first-visit consent work without turning the whole tree into a server-only surface.
 
-Default theme: black / white with TÜİK red **`#ae1615`**. No emoji in the product UI — Lucide only.
+Consent is stored under `stt-lab-consent-v1`. Locale under `stt-lab-locale-v1` (default **TR**).
 
-## STT techniques (five modes)
+### Onboarding (`/onboarding`)
 
-All modes are **educational**. They are designed to teach concepts offline or with light browser APIs — not to replace production ASR.
+1. **Splash** under the TÜİK logo — feature list + ready state  
+2. **Short tour** — how to use the lab  
+3. **Form + KVKK** — required fields: **first name**, **last name**, **why you use the lab**, **consent checkbox**  
+4. Submit via **Web3Forms** (`POST https://api.web3forms.com/submit`) through the Next.js route `POST /api/onboarding`, which injects `WEB3FORMS_ACCESS_KEY` server-side (do not commit `.env.local`)  
+5. On success: write localStorage consent, show **Approved** badge, continue to the main lab  
 
-| Mode | Id | Idea | Offline |
-| --- | --- | --- | --- |
-| **Mock ASR** | `mock` | Deterministic demo transcripts for catalog samples; best for metrics / WER teaching | Yes |
-| **Web Speech API** | `web-speech` | Browser `SpeechRecognition` when available; falls back to Mock | Browser-dependent |
-| **Pipeline stages** | `pipeline` | Visible teaching path: VAD → feature summary → decode (mock) | Yes |
-| **Energy / VAD + n-gram hybrid** | `vad-ngram` | Energy-based activity + lightweight n-gram style hybrid demo | Yes |
-| **Keyword spot + acoustic confidence** | `keyword-spot` | Keyword spotting with confidence-style scoring for teaching trust UI | Yes |
+```bash
+cp .env.example .env.local
+# set WEB3FORMS_ACCESS_KEY=...
+```
 
-> Heavy models (e.g. full Whisper stacks) are intentionally **not** required so the lab stays under a practical classroom footprint.
+## OpenCode (optional)
 
-## NLP & OpenCode
+The **NLP / OpenCode** tab can enrich analysis via a **local** OpenCode desktop CLI bridge (`app/api/opencode/*`). The lab itself does not require a paid model API. Install OpenCode on the machine if you want agent results; use the in-app install accordion and model picker when present. Review prompts and outputs before sharing.
 
-1. **Browser NLP (optional):** local Turkish lexicon / heuristics for intent-like labels and short notes — no paid API.  
-2. **OpenCode CLI (optional):** if `opencode` is on `PATH`, the lab can send a versioned report JSON (`speech-to-text-lab.report.v1`) to the desktop agent and stream progress back.  
-3. **Model picker:** default `opencode/muse-spark-1.3-contributor-free`; other CLI models can be selected in the panel.  
-4. **Install accordion:** Windows / Linux / macOS install snippets (Chocolatey, Scoop, npm, curl install script, Homebrew, etc.).  
-5. **Chat-style agent card:** expand the result; follow-up questions appear as user / agent bubbles.
+## Internationalization (i18n)
 
-## Sample data & privacy
+- Footer bottom-right control: **TR · EN · FR · CN · JP · AR**
+- Switching updates `document.documentElement.lang` and `dir` (**rtl** for AR)
+- Chrome strings: header, privacy banners, footer, LabWorkspace tabs/steps, upload / STT chrome, major panel headings
+- Dictionaries live in `lib/i18n.ts`; React access via `useLocale().t(key)`
 
-- Catalog targets **~30 Common Voice TR (CC-0)** style clips, including longer educational takes (~30s–90s).  
-- **Do not upload** real ALO 124 calls, CATI answers, or personal data.  
-- Repo samples are synthetic / openly licensed demo material for teaching.  
-- In any institutional deployment, follow **KVKK** and internal policy.
+## Privacy / KVKK / disclaimer
+
+- **Educational use only.** Do not upload real ALO 124 calls, CATI answers, or personal data.
+- Demo audio in `public/samples/` is synthetic or openly licensed material for teaching.
+- First visit requires acknowledging KVKK-oriented **correct use** and local-only persistence of consent.
+- In production environments, follow **KVKK** and institutional policies.
+- Onboarding profile fields are submitted through **Web3Forms** via `app/api/onboarding/route.ts` using `WEB3FORMS_ACCESS_KEY` (see `.env.example`).
+- OpenCode CLI (if installed) runs on your machine; review outputs before sharing.
 
 ## Quick start
 
@@ -98,50 +129,32 @@ npm install
 npm run dev
 ```
 
-Open **http://127.0.0.1:43123**.
-
-### Scripts
+Open **http://127.0.0.1:43123** (Next.js is bound to port `43123`).
 
 | Script | Purpose |
 | --- | --- |
-| `npm run dev` | Local lab on port `43123` |
-| `npm run build` | Samples + slides sync + production build |
-| `npm run start` | Serve production build on `43123` |
+| `npm run dev` | Local development server |
+| `npm run build` | Generate samples, sync slides, production build |
+| `npm run start` | Serve the production build on port `43123` |
 | `npm run samples` | Regenerate demo audio under `public/samples/` |
-| `npm run slides` | Sync and serve the teaching deck |
-| `npm run verify:audio-stage` | Playwright checks for Minimal / Detail audio UI |
-| `npm run verify:nlp-opencode` | Playwright checks for NLP / OpenCode panel |
-| `npm run verify:sample-catalog` | Catalog row / scroll checks |
+| `npm run slides` | Serve presentation slides (port `43210`) |
+| `npm run lint` | ESLint |
 
-## UI map
+## Stack
 
-- **Tek dosya** — single-file lab: upload / samples → STT → sentiment → report  
-- **Toplu işleme** — batch table + summary export  
-- **NLP / OpenCode** — optional local NLP + desktop agent bridge, archive / history  
-- **Slides** — `/slides/index.html` teaching deck aligned to the lab palette  
-
-Footer includes instructor credit, educational disclaimer, and language chips **TR · EN · FR · CN · JP · AR** (Arabic uses RTL when the locale layer is active).
-
-## Project layout (selected)
-
-```text
-app/                 Next.js routes + OpenCode API bridges
-components/          Lab UI (player, STT, NLP, batch, report, …)
-lib/                 STT modes, sentiment, NLP, report schema, OpenCode helpers
-public/samples/      Demo audio (WAV + M4A)
-public/brand/        TÜİK logo assets (educational display)
-public/slides/       Built presentation assets
-slides/              Source deck
-docs/images/         README hero art
-scripts/             Sample build, slide sync, Playwright verifiers
-```
+- **Next.js** (App Router) + **React** + **TypeScript**
+- **Tailwind CSS** v4
+- **Lucide React** icons
+- **WaveSurfer.js** waveform
+- **jsPDF** report export
+- Optional local **OpenCode** CLI for agent enrichment
 
 ## Credits
 
-- Instructor engineer: **[Gürkan Fikret Günak](https://linkedin.com/in/gurkanfikretgunak)**  
-- Developed with resources from **[MasterFabric](https://masterfabric.co)**  
-- Logo © Türkiye İstatistik Kurumu — educational display only  
+- Instructor engineer: **[Gürkan Fikret Günak](https://linkedin.com/in/gurkanfikretgunak)**
+- Developed with resources from **[MasterFabric](https://masterfabric.co)**
+- Logo © Türkiye İstatistik Kurumu — educational display only
 
 ## License
 
-Released under the [MIT License](./LICENSE).
+[MIT](./LICENSE)

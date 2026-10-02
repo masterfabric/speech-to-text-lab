@@ -9,6 +9,7 @@ import {
   type SttMode,
   type SttModeIconName,
 } from "@/lib/stt-modes";
+import { useLocale } from "@/components/LocaleProvider";
 
 const ICONS: Record<SttModeIconName, LucideIcon> = {
   bot: Bot,
@@ -29,6 +30,7 @@ export function SttModeSelector({
   onChange,
   disabled,
 }: SttModeSelectorProps) {
+  const { t } = useLocale();
   const [webSpeechOk, setWebSpeechOk] = useState(false);
 
   useEffect(() => {
@@ -41,16 +43,16 @@ export function SttModeSelector({
     <div className="rounded-xl border border-tuik/30 bg-white p-4 shadow-sm">
       <div className="flex items-center justify-between gap-2">
         <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
-          Yerel STT motoru
+          {t("stt.title")}
         </label>
         <span className="rounded-md bg-tuik-soft px-2 py-0.5 text-[10px] font-semibold text-tuik-dim ring-1 ring-tuik/30">
-          {STT_MODES.length} araç
+          {STT_MODES.length} {t("stt.tools")}
         </span>
       </div>
 
       <div
         role="radiogroup"
-        aria-label="STT motoru seçimi"
+        aria-label={t("stt.aria")}
         className="mt-3 space-y-2"
       >
         {STT_MODES.map((mode) => {
@@ -97,12 +99,12 @@ export function SttModeSelector({
                   </span>
                   {mode.recommended ? (
                     <span className="rounded bg-tuik px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                      Önerilen
+                      {t("stt.recommended")}
                     </span>
                   ) : null}
                   {unavailable ? (
                     <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 ring-1 ring-amber-200">
-                      Bu tarayıcıda yok
+                      {t("stt.unavailable")}
                     </span>
                   ) : null}
                 </span>

@@ -2,6 +2,7 @@
 
 import { formatDuration, formatPercent } from "@/lib/metrics";
 import type { AudioMetrics } from "@/lib/types";
+import { useLocale } from "@/components/LocaleProvider";
 
 type MetricsDashboardProps = {
   metrics: AudioMetrics | null;
@@ -29,6 +30,8 @@ function Card({
 }
 
 export function MetricsDashboard({ metrics, loading }: MetricsDashboardProps) {
+  const { t } = useLocale();
+
   if (loading) {
     return (
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -45,8 +48,7 @@ export function MetricsDashboard({ metrics, loading }: MetricsDashboardProps) {
   if (!metrics) {
     return (
       <div className="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
-        Transkripsiyon sonrası süre, konuşma oranı, sessizlik ve anahtar kelime
-        metrikleri burada listelenir.
+        {t("panel.metricsEmpty")}
       </div>
     );
   }
@@ -54,40 +56,40 @@ export function MetricsDashboard({ metrics, loading }: MetricsDashboardProps) {
   const topKeywords =
     metrics.keywordHits.length > 0
       ? metrics.keywordHits.map((k) => `${k.keyword} (${k.count})`).join(", ")
-      : "Eşleşme yok";
+      : t("panel.noMatch");
 
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Card
-          label="Çağrı süresi"
+          label={t("panel.callDuration")}
           value={formatDuration(metrics.durationSec)}
           hint={`${metrics.durationSec.toFixed(2)} sn`}
         />
         <Card
-          label="Konuşma oranı"
+          label={t("panel.speakingRatio")}
           value={formatPercent(metrics.speakingRatio)}
-          hint="Kelime zaman damgalarından tahmin"
+          hint={t("panel.speakingHint")}
         />
         <Card
-          label="Sessizlik boşlukları"
+          label={t("panel.silenceGaps")}
           value={String(metrics.silenceGaps)}
-          hint="≥ 0,45 sn boşluklar"
+          hint={t("panel.silenceHint")}
         />
         <Card
-          label="Örnekleme hızı"
+          label={t("panel.sampleRate")}
           value={`${Math.round(metrics.sampleRate)} Hz`}
-          hint={`Ort. güven: ${Math.round(metrics.averageConfidence * 100)}%`}
+          hint={`${t("panel.avgConfidence")}: ${Math.round(metrics.averageConfidence * 100)}%`}
         />
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <p className="text-xs font-medium uppercase tracking-wide text-tuik">
-          Anahtar kelime eşleşmeleri
+          {t("panel.keywordHits")}
         </p>
         <p className="mt-2 text-sm text-slate-800">{topKeywords}</p>
         <p className="mt-2 text-xs text-slate-500">
-          Demo terimler: anket, gizlilik, TÜİK, randevu (+ alo, veri, istatistik)
+          {t("panel.keywordDemo")}
         </p>
       </div>
     </div>

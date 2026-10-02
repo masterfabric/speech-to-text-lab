@@ -13,6 +13,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { PipelineStage, PipelineStageId } from "@/lib/types";
+import { useLocale } from "@/components/LocaleProvider";
 
 const STAGE_ICONS: Record<PipelineStageId, LucideIcon> = {
   vad: Activity,
@@ -79,6 +80,8 @@ export function PipelineStagesPanel({
   loading,
   variant,
 }: PipelineStagesPanelProps) {
+  const { t } = useLocale();
+
   if (!loading && (!stages || stages.length === 0)) return null;
 
   const order = resolveOrder(stages, variant);
@@ -88,7 +91,7 @@ export function PipelineStagesPanel({
     <div className="rounded-xl border border-tuik/30 bg-white p-5 shadow-sm">
       <div className="mb-3 flex items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-tuik">
-          Boru hattı aşamaları
+          {t("panel.pipelineStages")}
         </h3>
         <span className="rounded-md bg-tuik-soft px-2 py-0.5 text-[10px] font-semibold text-tuik-dim ring-1 ring-tuik/30">
           {badgeFor(order)}
@@ -143,7 +146,7 @@ export function PipelineStagesPanel({
                   </>
                 ) : (
                   <p className="mt-0.5 text-xs text-slate-500">
-                    {running ? "Çalışıyor…" : "Bekliyor"}
+                    {running ? t("panel.running") : t("panel.waiting")}
                   </p>
                 )}
               </div>

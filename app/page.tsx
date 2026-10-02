@@ -1,7 +1,12 @@
-import { GraduationCap, Sparkles } from "lucide-react";
+"use client";
+
 import { LabWorkspace } from "@/components/LabWorkspace";
+import { ConsentApprovedBadge } from "@/components/ConsentApprovedBadge";
+import { useLocale } from "@/components/LocaleProvider";
 
 export default function HomePage() {
+  const { t } = useLocale();
+
   return (
     <div className="flex min-h-full flex-col bg-white">
       <header className="border-b border-neutral-200 bg-white">
@@ -11,44 +16,23 @@ export default function HomePage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/brand/tuik-logo.svg"
-              alt="TÜİK — Türkiye İstatistik Kurumu logosu"
+              alt={t("header.logoAlt")}
               width={112}
               height={112}
               className="h-20 w-20 shrink-0 sm:h-28 sm:w-28"
             />
             <div className="min-w-0">
-              <p className="font-[family-name:var(--font-sora)] text-xl font-semibold tracking-tight text-black sm:text-2xl">
-                speech-to-text-lab
-              </p>
-              <div className="mt-2.5 max-w-2xl overflow-hidden rounded-xl border border-tuik/25 bg-gradient-to-r from-tuik-soft via-white to-white shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
-                <div className="flex gap-3 px-3.5 py-3 sm:px-4 sm:py-3.5">
-                  <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-tuik text-white shadow-sm">
-                    <GraduationCap className="h-4 w-4" aria-hidden />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 font-[family-name:var(--font-sora)] text-[11px] font-semibold uppercase tracking-[0.14em] text-tuik">
-                      <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                      Eğitim laboratuvarı
-                    </p>
-                    <p className="mt-1.5 text-sm leading-relaxed text-neutral-800">
-                      Bu eğitim laboratuvarı,{" "}
-                      <strong className="font-semibold text-black">
-                        yapay zeka dönüşümü
-                      </strong>{" "}
-                      ve{" "}
-                      <strong className="font-semibold text-black">
-                        yapay zeka okuryazarlığı
-                      </strong>{" "}
-                      eğitimi kapsamında oluşturulmuştur.
-                    </p>
-                  </div>
-                </div>
-                <div className="h-0.5 w-full bg-gradient-to-r from-tuik via-tuik/50 to-transparent" aria-hidden />
+              <div className="flex flex-wrap items-center gap-2.5">
+                <p className="font-[family-name:var(--font-sora)] text-xl font-semibold tracking-tight text-black sm:text-2xl">
+                  speech-to-text-lab
+                </p>
+                <ConsentApprovedBadge />
               </div>
+              <p className="mt-2 max-w-2xl text-xs leading-snug text-neutral-500">
+                {t("header.eduLine")}
+              </p>
               <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-neutral-600">
-                TÜİK ALO 124 tarzı çağrı merkezi sesi → STT → duygu/sentiment → rapor.
-                Yalnızca sentetik / demo ses; gerçek çağrı kaydı veya kişisel
-                veri yoktur. Ücretli API kullanılmaz.
+                {t("header.description")}
               </p>
             </div>
           </div>
@@ -57,7 +41,7 @@ export default function HomePage() {
               href="/slides/index.html"
               className="rounded-lg border border-tuik/30 bg-tuik-soft px-3 py-2 font-medium text-tuik transition hover:border-tuik hover:bg-tuik-muted"
             >
-              Slaytlar
+              {t("header.nav.slides")}
             </a>
             <a
               href="https://www.tuik.gov.tr"
@@ -65,7 +49,7 @@ export default function HomePage() {
               rel="noreferrer"
               className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-800 transition hover:border-black"
             >
-              TÜİK
+              {t("header.nav.tuik")}
             </a>
           </nav>
         </div>
@@ -73,25 +57,23 @@ export default function HomePage() {
 
       <main className="flex-1 bg-[#fafafa] px-4 py-8 sm:px-6">
         <div className="mx-auto mb-6 max-w-7xl rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-          <strong className="font-semibold text-amber-900">Gizlilik notu:</strong>{" "}
-          Bu uygulama eğitim amaçlıdır. Gerçek ALO 124 kayıtları, vatandaş
-          kişisel verileri veya CATI yanıtları yüklemeyin. Üretim ortamında KVKK
-          ve kurum politikalarına uyun.
+          <strong className="font-semibold text-amber-900">
+            {t("page.privacyTitle")}
+          </strong>{" "}
+          {t("page.privacyBody")}
         </div>
         <div className="mx-auto mb-8 max-w-7xl rounded-xl border border-neutral-200 bg-white px-4 py-3 text-xs text-neutral-600">
           <strong className="font-semibold text-black">
-            Eğitim amaçlı kullanım:
+            {t("page.eduUseTitle")}
           </strong>{" "}
-          TÜİK logosu yalnızca bu laboratuvarın eğitim / demo bağlamında
-          gösterilmektedir; resmi bir TÜİK ürünü veya onaylı yayın değildir. Logo
-          kaynağı:{" "}
+          {t("page.eduUseBody")}{" "}
           <a
             href="https://www.tuik.gov.tr"
             target="_blank"
             rel="noreferrer"
             className="font-medium text-tuik underline decoration-tuik/40 underline-offset-2 hover:text-tuik-deep"
           >
-            tuik.gov.tr
+            {t("page.eduUseSource")}
           </a>
           .
         </div>
