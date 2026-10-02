@@ -314,7 +314,7 @@ const tr: Dict = {
   "nlp.upload.title": "Harici ses yükle",
   "nlp.upload.hint":
     "NLP sekmesinde dışarıdan WAV/MP3/M4A sürükleyin veya seçin. STT sonrası duygu ve tarayıcı NLP aynı transkript üzerinde çalışır.",
-  "nlp.upload.loaded": "Yüklendi — NLP için STT çalıştırılıyor.",
+  "nlp.upload.loaded": "Yüklendi — harici ses NLP sekmesine alındı.",
   "nlp.upload.processing": "Harici ses işleniyor: STT → duygu…",
   "nlp.source.upload":
     "Kaynak: harici yükleme · STT → duygu hazır · NLP / OpenCode çalıştırabilirsiniz",
@@ -503,7 +503,7 @@ const en: Dict = {
   "nlp.upload.title": "Upload external audio",
   "nlp.upload.hint":
     "Drop or pick a WAV/MP3/M4A on the NLP tab. After STT, sentiment and browser NLP run on the same transcript.",
-  "nlp.upload.loaded": "Loaded — running STT for NLP.",
+  "nlp.upload.loaded": "Loaded — external audio taken into the NLP tab.",
   "nlp.upload.processing": "Processing external audio: STT → sentiment…",
   "nlp.source.upload":
     "Source: external upload · STT → sentiment ready · you can run NLP / OpenCode",
@@ -695,7 +695,7 @@ const fr: Dict = {
   "nlp.upload.title": "Importer un audio externe",
   "nlp.upload.hint":
     "Déposez ou choisissez un WAV/MP3/M4A dans l’onglet NLP. Après le STT, le sentiment et le NLP navigateur s’appliquent au même transcript.",
-  "nlp.upload.loaded": "Chargé — STT en cours pour le NLP.",
+  "nlp.upload.loaded": "Chargé — audio externe pris en charge dans l’onglet NLP.",
   "nlp.upload.processing": "Traitement audio externe : STT → sentiment…",
   "nlp.source.upload":
     "Source : import externe · STT → sentiment prêt · vous pouvez lancer NLP / OpenCode",
@@ -878,7 +878,7 @@ const cn: Dict = {
   "nlp.upload.title": "上传外部音频",
   "nlp.upload.hint":
     "在 NLP 选项卡拖放或选择 WAV/MP3/M4A。STT 后，情感与浏览器 NLP 基于同一转写运行。",
-  "nlp.upload.loaded": "已加载 — 正在为 NLP 运行 STT。",
+  "nlp.upload.loaded": "已加载 — 外部音频已进入 NLP 选项卡。",
   "nlp.upload.processing": "正在处理外部音频：STT → 情感…",
   "nlp.source.upload":
     "来源：外部上传 · STT → 情感已就绪 · 可运行 NLP / OpenCode",
@@ -1060,7 +1060,7 @@ const jp: Dict = {
   "nlp.upload.title": "外部音声をアップロード",
   "nlp.upload.hint":
     "NLP タブで WAV/MP3/M4A をドロップまたは選択。STT 後、感情とブラウザ NLP は同じ文字起こしで動きます。",
-  "nlp.upload.loaded": "読み込み済み — NLP 用に STT を実行中。",
+  "nlp.upload.loaded": "読み込み済み — 外部音声を NLP タブに取り込みました。",
   "nlp.upload.processing": "外部音声を処理中：STT → 感情…",
   "nlp.source.upload":
     "ソース：外部アップロード · STT → 感情準備完了 · NLP / OpenCode を実行できます",
@@ -1244,7 +1244,7 @@ const ar: Dict = {
   "nlp.upload.title": "رفع صوت خارجي",
   "nlp.upload.hint":
     "أسقط أو اختر WAV/MP3/M4A في تبويب NLP. بعد التحويل، يعمل تحليل المشاعر وNLP المتصفح على نفس النص.",
-  "nlp.upload.loaded": "حُمّل — جارٍ تشغيل STT لـ NLP.",
+  "nlp.upload.loaded": "حُمّل — أُخذ الصوت الخارجي إلى تبويب NLP.",
   "nlp.upload.processing": "جارٍ معالجة الصوت الخارجي: STT → مشاعر…",
   "nlp.source.upload":
     "المصدر: رفع خارجي · STT → المشاعر جاهزة · يمكنك تشغيل NLP / OpenCode",
