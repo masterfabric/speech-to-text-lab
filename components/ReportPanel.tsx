@@ -8,6 +8,7 @@ import {
   FileAudio,
   FileJson,
   FileText,
+  Gauge,
   HeartPulse,
   MessageSquareText,
   ShieldAlert,
@@ -97,7 +98,10 @@ export function ReportPanel({ result, loading }: ReportPanelProps) {
   };
 
   return (
-    <div className="overflow-hidden rounded-xl border border-tuik/40 bg-white shadow-sm">
+    <div
+      className="overflow-hidden rounded-xl border border-tuik/40 bg-white shadow-sm"
+      data-testid="report-panel"
+    >
       <div className="accent-bar" aria-hidden />
 
       <div className="space-y-5 p-5">
@@ -154,7 +158,7 @@ export function ReportPanel({ result, loading }: ReportPanelProps) {
           downloadVariant="solid"
         />
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5" data-testid="report-stats">
           <Stat
             icon={<Clock3 className="h-3.5 w-3.5" aria-hidden />}
             label={t("panel.duration")}
@@ -165,7 +169,15 @@ export function ReportPanel({ result, loading }: ReportPanelProps) {
             icon={<HeartPulse className="h-3.5 w-3.5" aria-hidden />}
             label={t("panel.polarity")}
             value={sentiment.label}
-            hint={`${t("panel.emotion")}: ${sentiment.emotion} · ${t("panel.score")} ${sentiment.score.toFixed(2)}`}
+            hint={`${t("panel.emotion")}: ${sentiment.emotion}`}
+            testId="report-polarity"
+          />
+          <Stat
+            icon={<Gauge className="h-3.5 w-3.5" aria-hidden />}
+            label={t("panel.score")}
+            value={Number(sentiment.score).toFixed(2)}
+            hint={`${t("panel.confidence")} ${Math.round(sentiment.confidence * 100)}%`}
+            testId="report-score"
           />
           <Stat
             icon={<Activity className="h-3.5 w-3.5" aria-hidden />}
@@ -206,9 +218,9 @@ export function ReportPanel({ result, loading }: ReportPanelProps) {
               title={t("panel.emotionScores")}
             />
             <ul className="mt-2 space-y-1.5 text-slate-700">
-              <li>
+              <li data-testid="report-emotion-polarity-line">
                 Polarite: <strong className="capitalize">{sentiment.label}</strong>{" "}
-                (skor {sentiment.score.toFixed(2)})
+                (skor {Number(sentiment.score).toFixed(2)})
               </li>
               <li>
                 Baskın duygu:{" "}
@@ -279,14 +291,19 @@ function Stat({
   label,
   value,
   hint,
+  testId,
 }: {
   icon: ReactNode;
   label: string;
   value: string;
   hint?: string;
+  testId?: string;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3">
+    <div
+      className="rounded-xl border border-slate-200 bg-white p-3"
+      data-testid={testId}
+    >
       <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-tuik">
         {icon}
         {label}
